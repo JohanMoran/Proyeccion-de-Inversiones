@@ -153,7 +153,7 @@
   <div class="result" id="resultado"></div>
   <div class="result" id="resumenFinal"></div>
 
-  <canvas id="grafica" height="80"></canvas>
+  <canvas id="grafica" height="150"></canvas>
 
   <table id="tablaResultados" style="display:none">
     <thead>
@@ -333,7 +333,7 @@
 
       doc.setFontSize(14);
       doc.text("Gráfico de Crecimiento de la Inversión", 14, finalY);
-      doc.addImage(imgData, 'PNG', 14, finalY + 5, 180, 80);
+      doc.addImage(imgData, 'PNG', 14, finalY + 5, 180, 120);
 
       doc.save("resumen-inversion.pdf");
     }

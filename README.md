@@ -1,3 +1,4 @@
+
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -5,6 +6,7 @@
   <title>Calculadora de Inversión</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -255,15 +257,40 @@
       const doc = new jsPDF();
 
       doc.setFontSize(16);
-      doc.text("Resumen de Inversión", 10, 20);
+      doc.text("Resumen de Inversión", 14, 20);
 
-      const resumen = document.getElementById("resumenFinal").innerText;
-      const lineas = resumen.split('\n').filter(Boolean);
-
+      const resumenElement = document.getElementById("resumenFinal");
+      const resumenTexto = resumenElement.innerText.split('\n').filter(Boolean);
       doc.setFontSize(12);
-      lineas.forEach((linea, i) => {
-        doc.text(linea.trim(), 10, 30 + i * 8);
+      resumenTexto.forEach((linea, i) => {
+        doc.text(linea.trim(), 14, 30 + i * 8);
       });
+
+      const startY = 30 + resumenTexto.length * 8 + 10;
+      const headers = [["Mes", "Fecha", "Aportación", "Interés", "Total"]];
+      const filas = [];
+      document.querySelectorAll('#tablaResultados tbody tr').forEach(row => {
+        const celdas = Array.from(row.querySelectorAll('td')).map(td => td.innerText);
+        filas.push(celdas);
+      });
+
+      doc.autoTable({
+        head: headers,
+        body: filas,
+        startY: startY,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [43, 103, 119] },
+        margin: { left: 14, right: 14 }
+      });
+
+      const finalY = doc.previousAutoTable.finalY + 10;
+
+      const canvas = document.getElementById('grafica');
+      const imgData = canvas.toDataURL('image/png', 1.0);
+
+      doc.setFontSize(14);
+      doc.text("Gráfico de Crecimiento de la Inversión", 14, finalY);
+      doc.addImage(imgData, 'PNG', 14, finalY + 5, 180, 80);
 
       doc.save("resumen-inversion.pdf");
     }

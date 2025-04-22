@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -74,9 +75,18 @@
     .conservador { background-color: #d4edda; color: #155724; }
     .moderado { background-color: #fff3cd; color: #856404; }
     .agresivo { background-color: #f8d7da; color: #721c24; }
+    .top-bar {
+      text-align: right;
+      max-width: 800px;
+      margin: auto;
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
+  <div class="top-bar">
+    <button onclick="toggleModoOscuro()">🌓 Modo oscuro</button>
+  </div>
   <div class="container">
     <h1>Calculadora de Inversión Avanzada</h1>
 
@@ -107,7 +117,6 @@
     <button onclick="sugerirAportacion()">💡 Calcular aportación sugerida</button>
     <button onclick="descargarPDF()">📄 Descargar PDF</button>
     <button onclick="exportarExcel()">📊 Exportar Excel</button>
-    <button onclick="toggleModoOscuro()">🌓 Modo oscuro</button>
 
     <div id="resumen"></div>
     <canvas id="grafico" style="max-width:100%; margin-top:30px;"></canvas>

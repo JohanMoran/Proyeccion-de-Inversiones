@@ -4,6 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Inversión</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -107,9 +108,11 @@
   <div class="buttons">
     <button onclick="calcular()">Calcular</button>
     <button onclick="descargarCSV()">Descargar Excel</button>
+    <button onclick="descargarPDF()">Descargar PDF</button>
   </div>
 
   <div class="result" id="resultado"></div>
+  <div class="result" id="resumenFinal"></div>
 
   <canvas id="grafica" height="80"></canvas>
 
@@ -139,6 +142,7 @@
 
       let capital = capitalInicial;
       let totalInteres = 0;
+      let totalAportaciones = 0;
       const mensual = tasa / 12 / 100;
       const tabla = document.querySelector('#tablaResultados tbody');
       tabla.innerHTML = '';
@@ -148,11 +152,11 @@
       let cumpleObjetivo = false;
 
       if (capitalObjetivo) {
-        // Calcular el tiempo necesario para alcanzar el capital objetivo
         for (let i = 1; i <= 600; i++) {
           const interes = capital * mensual;
           totalInteres += interes;
           capital += interes + aportacion;
+          totalAportaciones += aportacion;
           if (capital >= capitalObjetivo) {
             meses = i;
             cumpleObjetivo = true;
@@ -161,24 +165,26 @@
         }
         capital = capitalInicial;
         totalInteres = 0;
+        totalAportaciones = 0;
       }
 
       for (let i = 1; i <= meses; i++) {
         const interes = capital * mensual;
         totalInteres += interes;
         capital += interes + aportacion;
+        totalAportaciones += aportacion;
 
         const fecha = new Date(fechaInicio);
         fecha.setMonth(fecha.getMonth() + i);
 
-        const fila = `<tr>
-          <td>${i}</td>
-          <td>${fecha.toLocaleDateString()}</td>
-          <td>$${aportacion.toFixed(2)}</td>
-          <td>$${interes.toFixed(2)}</td>
-          <td>$${capital.toFixed(2)}</td>
-        </tr>`;
-        tabla.innerHTML += fila;
+        tabla.innerHTML += `
+          <tr>
+            <td>${i}</td>
+            <td>${fecha.toLocaleDateString()}</td>
+            <td>$${aportacion.toFixed(2)}</td>
+            <td>$${interes.toFixed(2)}</td>
+            <td>$${capital.toFixed(2)}</td>
+          </tr>`;
 
         datosGrafica.push({ mes: i, total: capital.toFixed(2) });
       }
@@ -187,6 +193,16 @@
         cumpleObjetivo
           ? `📈 Alcanzarás el capital objetivo de $${capitalObjetivo.toLocaleString()} en ${meses} meses.`
           : `💰 Monto final estimado: $${capital.toFixed(2)} (Interés generado: $${totalInteres.toFixed(2)})`;
+
+      document.getElementById('resumenFinal').innerHTML = `
+        <hr style="margin-top:20px;"/>
+        <p><strong>Resumen:</strong></p>
+        <ul>
+          <li>🔹 Total de aportaciones: <strong>$${totalAportaciones.toFixed(2)}</strong></li>
+          <li>🔹 Intereses generados: <strong>$${totalInteres.toFixed(2)}</strong></li>
+          <li>🔹 Monto final: <strong>$${capital.toFixed(2)}</strong></li>
+        </ul>
+      `;
 
       document.getElementById('tablaResultados').style.display = 'table';
       graficar();
@@ -232,6 +248,24 @@
       a.download = 'resultado-inversion.csv';
       a.click();
       URL.revokeObjectURL(url);
+    }
+
+    async function descargarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(16);
+      doc.text("Resumen de Inversión", 10, 20);
+
+      const resumen = document.getElementById("resumenFinal").innerText;
+      const lineas = resumen.split('\n').filter(Boolean);
+
+      doc.setFontSize(12);
+      lineas.forEach((linea, i) => {
+        doc.text(linea.trim(), 10, 30 + i * 8);
+      });
+
+      doc.save("resumen-inversion.pdf");
     }
   </script>
 </body>

@@ -5,12 +5,25 @@
   <title>Calculadora de Inversión</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <style>
+    :root {
+      --bg-color: #f9f9f9;
+      --text-color: #333;
+      --box-bg: #fff;
+    }
+
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #eee;
+      --box-bg: #1e1e1e;
+    }
+
     body {
       font-family: 'Segoe UI', sans-serif;
       margin: 20px;
-      background: #f9f9f9;
-      color: #333;
+      background: var(--bg-color);
+      color: var(--text-color);
     }
     h1 {
       color: #0066cc;
@@ -29,7 +42,7 @@
     .container {
       max-width: 800px;
       margin: auto;
-      background: #fff;
+      background: var(--box-bg);
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -93,7 +106,8 @@
     <button onclick="calcularInversion()">Calcular inversión</button>
     <button onclick="sugerirAportacion()">💡 Calcular aportación sugerida</button>
     <button onclick="descargarPDF()">📄 Descargar PDF</button>
-    <button onclick="leerResumen()">🔊 Leer resumen</button>
+    <button onclick="exportarExcel()">📊 Exportar Excel</button>
+    <button onclick="toggleModoOscuro()">🌓 Modo oscuro</button>
 
     <div id="resumen"></div>
     <canvas id="grafico" style="max-width:100%; margin-top:30px;"></canvas>
@@ -103,6 +117,10 @@
   <script>
     const metas = [];
     const colores = ['#ff9999', '#99ccff', '#ccffcc', '#ffff99'];
+
+    function toggleModoOscuro() {
+      document.body.classList.toggle('dark');
+    }
 
     function agregarMeta() {
       const id = metas.length;
@@ -116,6 +134,8 @@
       metas.push(id);
     }
 
+    let resultadosGlobales = [];
+
     function calcularInversion() {
       const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
       const tasaAnual = parseFloat(document.getElementById('tasa').value) / 100 || 0;
@@ -124,7 +144,7 @@
       const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
       const retiroMensual = parseFloat(document.getElementById('retiroMensual').value) || 0;
 
-      const resultados = [];
+      resultadosGlobales = [];
       let totalAportado = capitalInicial;
       let monto = capitalInicial;
       const metasInfo = metas.map((id, i) => ({
@@ -139,7 +159,7 @@
         monto -= retiroMensual;
         monto += monto * (tasaAnual / 12);
         totalAportado += aportacion;
-        resultados.push({ mes: i, monto: monto.toFixed(2) });
+        resultadosGlobales.push({ mes: i, monto: monto.toFixed(2) });
 
         metasInfo.forEach(meta => {
           if (!meta.alcanzada && monto >= meta.monto) meta.alcanzada = i;
@@ -148,8 +168,8 @@
         if (monto <= 0) break;
       }
 
-      mostrarTabla(resultados, metasInfo);
-      mostrarGrafico(resultados, metasInfo);
+      mostrarTabla(resultadosGlobales, metasInfo);
+      mostrarGrafico(resultadosGlobales, metasInfo);
       mostrarResumen(totalAportado, monto - totalAportado, monto);
       mostrarRiesgo(tasaAnual);
     }
@@ -201,9 +221,9 @@
     function mostrarRiesgo(tasa) {
       const cont = document.getElementById('resumen');
       let label = '';
-      if (tasa < 0.07) label = '<span class=\"risk-label conservador\">Perfil: Conservador</span>';
-      else if (tasa < 0.12) label = '<span class=\"risk-label moderado\">Perfil: Moderado</span>';
-      else label = '<span class=\"risk-label agresivo\">Perfil: Agresivo</span>';
+      if (tasa < 0.07) label = '<span class="risk-label conservador">Perfil: Conservador</span>';
+      else if (tasa < 0.12) label = '<span class="risk-label moderado">Perfil: Moderado</span>';
+      else label = '<span class="risk-label agresivo">Perfil: Agresivo</span>';
       cont.innerHTML += `<p>${label}</p>`;
     }
 
@@ -226,19 +246,19 @@
       alert(`Aportación sugerida para alcanzar el objetivo: $${aportacion.toFixed(2)} / mes`);
     }
 
-    function leerResumen() {
-      const resumen = document.getElementById('resumen').innerText;
-      const speech = new SpeechSynthesisUtterance(resumen);
-      speech.lang = 'es-MX';
-      window.speechSynthesis.speak(speech);
-    }
-
     async function descargarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       const resumen = document.getElementById('resumen').innerText;
       doc.text(resumen, 10, 10);
       doc.save('resumen_inversion.pdf');
+    }
+
+    function exportarExcel() {
+      const ws = XLSX.utils.json_to_sheet(resultadosGlobales);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Resultados");
+      XLSX.writeFile(wb, "resultados_inversion.xlsx");
     }
   </script>
 </body>

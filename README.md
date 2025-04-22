@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -7,13 +7,11 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-  <!-- Fuentes elegantes -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Roboto', sans-serif; /* Fuente más profesional */
-      background-color: #f5f5f5; /* Fondo más claro y profesional */
-      padding: 40px 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f6f8;
+      padding: 20px;
       max-width: 900px;
       margin: auto;
       color: #333;
@@ -21,88 +19,70 @@
 
     h1 {
       text-align: center;
-      color: #2a4d63; /* Azul más oscuro para un toque ejecutivo */
-      font-size: 32px;
-      margin-bottom: 30px;
+      color: #2b6777;
     }
 
     label {
       margin-top: 15px;
       display: block;
-      font-weight: 500;
-      color: #555;
+      font-weight: 600;
     }
 
     input {
-      padding: 12px;
-      border: 1px solid #ddd;
+      padding: 10px;
+      border: 1px solid #ccc;
       width: 100%;
-      border-radius: 8px;
-      margin-top: 8px;
-      font-size: 14px;
-      color: #333;
+      border-radius: 5px;
+      margin-top: 5px;
     }
 
     button {
-      margin-top: 25px;
-      padding: 12px 18px;
-      background-color: #007bff; /* Azul profesional para el botón Calcular */
+      margin-top: 20px;
+      padding: 10px 15px;
+      background-color: #2b6777;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 5px;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 14px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Suave sombra para darle profundidad */
+      font-weight: bold;
     }
 
     button:hover {
-      background-color: #0056b3; /* Hover con un azul más oscuro */
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada en hover */
-    }
-
-    .buttons {
-      display: flex;
-      gap: 15px;
-      margin-top: 20px;
-      justify-content: center;
+      background-color: #1b4d5b;
     }
 
     .result {
-      margin-top: 25px;
+      margin-top: 20px;
       font-size: 18px;
-      font-weight: 500;
+      font-weight: bold;
       color: #11698e;
     }
 
     table {
       width: 100%;
-      margin-top: 30px;
+      margin-top: 20px;
       border-collapse: collapse;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Suave sombra para las tablas */
     }
 
     th, td {
-      padding: 12px;
+      padding: 8px;
       text-align: center;
-      border: 1px solid #ddd;
+      border: 1px solid #ccc;
     }
 
     th {
-      background-color: #007bff;
-      color: white;
-      font-weight: 600;
+      background-color: #ddeeee;
     }
 
     canvas {
       margin-top: 30px;
-      border-radius: 8px;
     }
 
-    .buttons button {
-      min-width: 150px;
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
     }
   </style>
 </head>
@@ -128,7 +108,7 @@
   <input type="number" id="capitalObjetivo" placeholder="Ej: 500000" />
 
   <div class="buttons">
-    <button id="calcular" onclick="calcular()">Calcular</button>
+    <button onclick="calcular()">Calcular</button>
     <button onclick="descargarCSV()">Descargar Excel</button>
     <button onclick="descargarPDF()">Descargar PDF</button>
   </div>
@@ -241,8 +221,8 @@
           datasets: [{
             label: 'Total acumulado',
             data: datosGrafica.map(p => p.total),
-            borderColor: '#007bff',
-            backgroundColor: 'rgba(0,123,255,0.1)',
+            borderColor: '#2b6777',
+            backgroundColor: 'rgba(43,103,119,0.1)',
             tension: 0.3,
             fill: true
           }]
@@ -287,14 +267,32 @@
       });
 
       const startY = 30 + resumenTexto.length * 8 + 10;
-
-      doc.autoTable({ 
-        startY, 
-        html: '#tablaResultados', 
-        theme: 'grid' 
+      const headers = [["Mes", "Fecha", "Aportación", "Interés", "Total"]];
+      const filas = [];
+      document.querySelectorAll('#tablaResultados tbody tr').forEach(row => {
+        const celdas = Array.from(row.querySelectorAll('td')).map(td => td.innerText);
+        filas.push(celdas);
       });
 
-      doc.save('inversion.pdf');
+      doc.autoTable({
+        head: headers,
+        body: filas,
+        startY: startY,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [43, 103, 119] },
+        margin: { left: 14, right: 14 }
+      });
+
+      const finalY = doc.previousAutoTable.finalY + 10;
+
+      const canvas = document.getElementById('grafica');
+      const imgData = canvas.toDataURL('image/png', 1.0);
+
+      doc.setFontSize(14);
+      doc.text("Gráfico de Crecimiento de la Inversión", 14, finalY);
+      doc.addImage(imgData, 'PNG', 14, finalY + 5, 180, 80);
+
+      doc.save("resumen-inversion.pdf");
     }
   </script>
 </body>

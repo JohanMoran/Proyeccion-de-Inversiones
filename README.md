@@ -1,240 +1,341 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Calculadora de Inversión</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <style>
     :root {
-      --bg-color: #f9f9f9;
-      --text-color: #333;
-      --box-bg: #fff;
-    }
+      --fondo-claro: #f4f6f8;
+      --texto-claro: #333;
+      --primario: #2b6777;
+      --hover: #1b4d5b;
+      --tabla-clara: #ddeeee;
 
-    body.dark {
-      --bg-color: #121212;
-      --text-color: #eee;
-      --box-bg: #1e1e1e;
+      --fondo-oscuro: #1e1e1e;
+      --texto-oscuro: #eee;
+      --tabla-oscura: #333;
     }
 
     body {
       font-family: 'Segoe UI', sans-serif;
-      margin: 20px;
-      background: var(--bg-color);
-      color: var(--text-color);
-    }
-    h1 {
-      color: #0066cc;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-    }
-    input, select, button {
-      padding: 8px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      width: 100%;
-    }
-    .container {
-      max-width: 800px;
-      margin: auto;
-      background: var(--box-bg);
+      background-color: var(--fondo-claro);
+      color: var(--texto-claro);
       padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      max-width: 900px;
+      margin: auto;
+      transition: all 0.3s ease;
     }
+
+    body.dark-mode {
+      background-color: var(--fondo-oscuro);
+      color: var(--texto-oscuro);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primario);
+    }
+
+    label {
+      margin-top: 15px;
+      display: block;
+      font-weight: 600;
+    }
+
+    input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      width: 100%;
+      border-radius: 5px;
+      margin-top: 5px;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 8px 12px;
+      background-color: var(--primario);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: var(--hover);
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #11698e;
+    }
+
     table {
       width: 100%;
       margin-top: 20px;
       border-collapse: collapse;
     }
+
     th, td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-      text-align: right;
+      padding: 8px;
+      text-align: center;
+      border: 1px solid #ccc;
     }
+
     th {
-      background: #e6f2ff;
+      background-color: var(--tabla-clara);
     }
-    .meta-entry {
+
+    body.dark-mode th {
+      background-color: var(--tabla-oscura);
+    }
+
+    canvas {
+      margin-top: 30px;
+    }
+
+    .buttons {
       display: flex;
       gap: 10px;
-      margin-top: 5px;
+      margin-top: 15px;
+      flex-wrap: wrap;
     }
-    .risk-label {
-      padding: 6px 10px;
-      border-radius: 8px;
-      display: inline-block;
-      font-weight: bold;
+
+    #toggleDark {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: #444;
+      font-size: 12px;
     }
-    .conservador { background-color: #d4edda; color: #155724; }
-    .moderado { background-color: #fff3cd; color: #856404; }
-    .agresivo { background-color: #f8d7da; color: #721c24; }
-    .top-bar {
-      text-align: right;
-      max-width: 800px;
-      margin: auto;
-      margin-bottom: 10px;
-    }
-    button {
-      font-size: 0.85rem;
-      padding: 6px 10px;
-      width: auto;
-      cursor: pointer;
-    }
-    button:focus {
-      outline: none;
+
+    body.dark-mode #toggleDark {
+      background-color: #ccc;
+      color: #222;
     }
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <button onclick="toggleModoOscuro()">🌓 Modo oscuro</button>
+  <button id="toggleDark" onclick="alternarModo()">🌙 Modo Oscuro</button>
+
+  <h1>Calculadora de Inversión</h1>
+
+  <label>Monto Inicial:</label>
+  <input type="number" id="capitalInicial" />
+
+  <label>Tasa Anual (%):</label>
+  <input type="number" id="tasa" />
+
+  <label>Plazo (en meses):</label>
+  <input type="number" id="plazo" />
+
+  <label>Aportación mensual:</label>
+  <input type="number" id="aportacion" />
+
+  <label>Fecha de inicio:</label>
+  <input type="date" id="fechaInicio" />
+
+  <label>Capital objetivo (opcional):</label>
+  <input type="number" id="capitalObjetivo" placeholder="Ej: 500000" />
+
+  <div class="buttons">
+    <button onclick="calcular()">Calcular</button>
+    <button onclick="descargarCSV()">Descargar Excel</button>
+    <button onclick="descargarPDF()">Descargar PDF</button>
   </div>
-  <div class="container">
-    <h1>Calculadora de Inversión Avanzada</h1>
 
-    <label>Capital inicial:</label>
-    <input type="number" id="capitalInicial" />
+  <div class="result" id="resultado"></div>
+  <div class="result" id="resumenFinal"></div>
 
-    <label>Tasa anual (%):</label>
-    <input type="number" id="tasa" />
+  <canvas id="grafica" height="80"></canvas>
 
-    <label>Plazo (en meses):</label>
-    <input type="number" id="plazo" />
-
-    <label>Aportaciones mensuales:</label>
-    <input type="number" id="aportacionMensual" />
-
-    <label>Capital objetivo (opcional):</label>
-    <input type="number" id="capitalObjetivo" />
-
-    <label>Agregar metas intermedias:</label>
-    <div id="metas"></div>
-    <button onclick="agregarMeta()">➕ Agregar nueva meta</button>
-
-    <label>¿Quieres simular un retiro mensual?</label>
-    <input type="number" id="retiroMensual" placeholder="Monto mensual a retirar (opcional)" />
-
-    <br><br>
-    <button onclick="calcularInversion()">Calcular inversión</button>
-    <button onclick="sugerirAportacion()">💡 Calcular aportación sugerida</button>
-    <button onclick="descargarPDF()">📄 Descargar PDF</button>
-    <button onclick="exportarExcel()">📊 Exportar Excel</button>
-
-    <div id="resumen"></div>
-    <canvas id="grafico" style="max-width:100%; margin-top:30px;"></canvas>
-    <table id="tablaResultados"></table>
-  </div>
+  <table id="tablaResultados" style="display:none">
+    <thead>
+      <tr>
+        <th>Mes</th>
+        <th>Fecha</th>
+        <th>Aportación</th>
+        <th>Interés</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
   <script>
-    let modoOscuro = false;
-
-    function toggleModoOscuro() {
-      modoOscuro = !modoOscuro;
-      document.body.classList.toggle('dark', modoOscuro);
+    function alternarModo() {
+      document.body.classList.toggle('dark-mode');
+      const btn = document.getElementById("toggleDark");
+      btn.textContent = document.body.classList.contains('dark-mode') ? "☀️ Modo Claro" : "🌙 Modo Oscuro";
     }
 
-    // Función para calcular la inversión
-    function calcularInversion() {
-      let capitalInicial = parseFloat(document.getElementById('capitalInicial').value);
-      let tasa = parseFloat(document.getElementById('tasa').value) / 100;
-      let plazo = parseInt(document.getElementById('plazo').value);
-      let aportacionMensual = parseFloat(document.getElementById('aportacionMensual').value);
-      let retiroMensual = parseFloat(document.getElementById('retiroMensual').value) || 0;
-      
-      // Calcular los rendimientos mes a mes
-      let resultado = [];
-      let saldo = capitalInicial;
-      let totalAportaciones = capitalInicial;
-      let totalRendimiento = 0;
+    let datosGrafica = [];
 
-      for (let i = 1; i <= plazo; i++) {
-        saldo += aportacionMensual;
-        saldo *= (1 + tasa / 12);
-        saldo -= retiroMensual;
-        totalAportaciones += aportacionMensual;
-        totalRendimiento = saldo - totalAportaciones;
+    function calcular() {
+      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
+      const tasa = parseFloat(document.getElementById('tasa').value) || 0;
+      const plazo = parseInt(document.getElementById('plazo').value) || 0;
+      const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
+      const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
+      const fechaInicio = new Date(document.getElementById('fechaInicio').value);
 
-        resultado.push({
-          mes: i,
-          saldo: saldo.toFixed(2),
-          rendimiento: totalRendimiento.toFixed(2),
-          aportaciones: totalAportaciones.toFixed(2)
-        });
+      let capital = capitalInicial;
+      let totalInteres = 0;
+      let totalAportaciones = 0;
+      const mensual = tasa / 12 / 100;
+      const tabla = document.querySelector('#tablaResultados tbody');
+      tabla.innerHTML = '';
+      datosGrafica = [];
+
+      let meses = plazo;
+      let cumpleObjetivo = false;
+
+      if (capitalObjetivo) {
+        for (let i = 1; i <= 600; i++) {
+          const interes = capital * mensual;
+          totalInteres += interes;
+          capital += interes + aportacion;
+          totalAportaciones += aportacion;
+          if (capital >= capitalObjetivo) {
+            meses = i;
+            cumpleObjetivo = true;
+            break;
+          }
+        }
+        capital = capitalInicial;
+        totalInteres = 0;
+        totalAportaciones = 0;
       }
 
-      mostrarResultados(resultado);
-    }
+      for (let i = 1; i <= meses; i++) {
+        const interes = capital * mensual;
+        totalInteres += interes;
+        capital += interes + aportacion;
+        totalAportaciones += aportacion;
 
-    // Función para mostrar los resultados en la tabla
-    function mostrarResultados(resultado) {
-      let tabla = document.getElementById('tablaResultados');
-      tabla.innerHTML = `
-        <tr>
-          <th>Mes</th>
-          <th>Saldo Final</th>
-          <th>Rendimiento</th>
-          <th>Aportaciones Totales</th>
-        </tr>
-      `;
+        const fecha = new Date(fechaInicio);
+        fecha.setMonth(fecha.getMonth() + i);
 
-      resultado.forEach(item => {
         tabla.innerHTML += `
           <tr>
-            <td>${item.mes}</td>
-            <td>${item.saldo}</td>
-            <td>${item.rendimiento}</td>
-            <td>${item.aportaciones}</td>
-          </tr>
-        `;
-      });
-    }
+            <td>${i}</td>
+            <td>${fecha.toLocaleDateString()}</td>
+            <td>$${aportacion.toFixed(2)}</td>
+            <td>$${interes.toFixed(2)}</td>
+            <td>$${capital.toFixed(2)}</td>
+          </tr>`;
 
-    // Función para sugerir una aportación
-    function sugerirAportacion() {
-      let capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value);
-      let tasa = parseFloat(document.getElementById('tasa').value) / 100;
-      let plazo = parseInt(document.getElementById('plazo').value);
-
-      if (!capitalObjetivo) {
-        alert("Por favor, ingresa un capital objetivo");
-        return;
+        datosGrafica.push({ mes: i, total: capital.toFixed(2) });
       }
 
-      let aportacion = (capitalObjetivo - (capitalObjetivo * (1 + tasa / 12) ** plazo)) / plazo;
-      alert("Aportación mensual sugerida: $" + aportacion.toFixed(2));
+      document.getElementById('resultado').innerText =
+        cumpleObjetivo
+          ? `📈 Alcanzarás el capital objetivo de $${capitalObjetivo.toLocaleString()} en ${meses} meses.`
+          : `💰 Monto final estimado: $${capital.toFixed(2)} (Interés generado: $${totalInteres.toFixed(2)})`;
+
+      document.getElementById('resumenFinal').innerHTML = `
+        <hr style="margin-top:20px;"/>
+        <p><strong>Resumen:</strong></p>
+        <ul>
+          <li>🔹 Total de aportaciones: <strong>$${totalAportaciones.toFixed(2)}</strong></li>
+          <li>🔹 Intereses generados: <strong>$${totalInteres.toFixed(2)}</strong></li>
+          <li>🔹 Monto final: <strong>$${capital.toFixed(2)}</strong></li>
+        </ul>
+      `;
+
+      document.getElementById('tablaResultados').style.display = 'table';
+      graficar();
     }
 
-    // Función para generar el PDF
-    function descargarPDF() {
-      let doc = new jsPDF();
-      let tabla = document.getElementById('tablaResultados').outerHTML;
-      doc.html(tabla, {
-        callback: function (doc) {
-          doc.save('inversion.pdf');
+    function graficar() {
+      const ctx = document.getElementById('grafica').getContext('2d');
+      if (window.miGrafica) window.miGrafica.destroy();
+
+      window.miGrafica = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: datosGrafica.map(p => `Mes ${p.mes}`),
+          datasets: [{
+            label: 'Total acumulado',
+            data: datosGrafica.map(p => p.total),
+            borderColor: '#2b6777',
+            backgroundColor: 'rgba(43,103,119,0.1)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: true } }
         }
       });
     }
 
-    // Función para exportar a Excel
-    function exportarExcel() {
-      let tabla = document.getElementById('tablaResultados');
-      let wb = XLSX.utils.table_to_book(tabla, { sheet: "Resultados" });
-      XLSX.writeFile(wb, "inversion.xlsx");
+    function descargarCSV() {
+      let csv = 'Mes,Fecha,Aportación,Interés,Total\n';
+      const filas = document.querySelectorAll('#tablaResultados tbody tr');
+      filas.forEach(fila => {
+        const columnas = fila.querySelectorAll('td');
+        const datos = Array.from(columnas).map(td => td.innerText.replace('$', '').replace(',', ''));
+        csv += datos.join(',') + '\n';
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'resultado-inversion.csv';
+      a.click();
+      URL.revokeObjectURL(url);
     }
 
-    // Función para agregar una meta intermedia
-    function agregarMeta() {
-      const metasContainer = document.getElementById('metas');
-      const metaInput = document.createElement('input');
-      metaInput.type = 'number';
-      metaInput.placeholder = 'Meta intermedia';
-      metasContainer.appendChild(metaInput);
+    async function descargarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(16);
+      doc.text("Resumen de Inversión", 14, 20);
+
+      const resumenElement = document.getElementById("resumenFinal");
+      const resumenTexto = resumenElement.innerText.split('\n').filter(Boolean);
+      doc.setFontSize(12);
+      resumenTexto.forEach((linea, i) => {
+        doc.text(linea.trim(), 14, 30 + i * 8);
+      });
+
+      const startY = 30 + resumenTexto.length * 8 + 10;
+      const headers = [["Mes", "Fecha", "Aportación", "Interés", "Total"]];
+      const filas = [];
+      document.querySelectorAll('#tablaResultados tbody tr').forEach(row => {
+        const celdas = Array.from(row.querySelectorAll('td')).map(td => td.innerText);
+        filas.push(celdas);
+      });
+
+      doc.autoTable({
+        head: headers,
+        body: filas,
+        startY: startY,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [43, 103, 119] },
+        margin: { left: 14, right: 14 }
+      });
+
+      const finalY = doc.previousAutoTable.finalY + 10;
+
+      const canvas = document.getElementById('grafica');
+      const imgData = canvas.toDataURL('image/png', 1.0);
+
+      doc.setFontSize(14);
+      doc.text("Gráfico de Crecimiento de la Inversión", 14, finalY);
+      doc.addImage(imgData, 'PNG', 14, finalY + 5, 180, 80);
+
+      doc.save("resumen-inversion.pdf");
     }
   </script>
 </body>

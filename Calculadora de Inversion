@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -7,18 +8,37 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
   <style>
+    :root {
+      --bg: #f4f6f8;
+      --text: #333;
+      --primary: #2b6777;
+      --hover: #1b4d5b;
+      --accent: #11698e;
+      --table-header: #ddeeee;
+    }
+
+    body.dark {
+      --bg: #1e1e1e;
+      --text: #e0e0e0;
+      --primary: #90caf9;
+      --hover: #64b5f6;
+      --accent: #bbdefb;
+      --table-header: #333;
+    }
+
     body {
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f6f8;
+      background-color: var(--bg);
+      color: var(--text);
       padding: 20px;
       max-width: 900px;
       margin: auto;
-      color: #333;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     h1 {
       text-align: center;
-      color: #2b6777;
+      color: var(--primary);
     }
 
     label {
@@ -38,7 +58,7 @@
     button {
       margin-top: 20px;
       padding: 10px 15px;
-      background-color: #2b6777;
+      background-color: var(--primary);
       color: white;
       border: none;
       border-radius: 5px;
@@ -47,14 +67,32 @@
     }
 
     button:hover {
-      background-color: #1b4d5b;
+      background-color: var(--hover);
     }
 
     .result {
       margin-top: 20px;
       font-size: 18px;
       font-weight: bold;
-      color: #11698e;
+      color: var(--accent);
+    }
+
+    .progress-bar {
+      margin-top: 10px;
+      height: 25px;
+      background-color: #ccc;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      color: white;
+      text-align: center;
+      line-height: 25px;
+      transition: width 0.5s ease;
     }
 
     table {
@@ -70,7 +108,7 @@
     }
 
     th {
-      background-color: #ddeeee;
+      background-color: var(--table-header);
     }
 
     canvas {
@@ -83,9 +121,24 @@
       margin-top: 15px;
       flex-wrap: wrap;
     }
+
+    .toggle-dark {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 14px;
+    }
+
+    .toggle-dark input {
+      margin-right: 6px;
+    }
   </style>
 </head>
 <body>
+  <div class="toggle-dark">
+    <label><input type="checkbox" id="modoOscuro" onchange="toggleDark()"> 🌙 Modo oscuro</label>
+  </div>
+
   <h1>Calculadora de Inversión</h1>
 
   <label>Monto Inicial:</label>
@@ -113,6 +166,9 @@
   </div>
 
   <div class="result" id="resultado"></div>
+  <div class="progress-bar" id="barraProgreso" style="display:none;">
+    <div class="progress-bar-fill" id="progresoFill">0%</div>
+  </div>
   <div class="result" id="resumenFinal"></div>
 
   <canvas id="grafica" height="80"></canvas>
@@ -132,6 +188,10 @@
 
   <script>
     let datosGrafica = [];
+
+    function toggleDark() {
+      document.body.classList.toggle("dark");
+    }
 
     function calcular() {
       const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
@@ -155,9 +215,7 @@
       if (capitalObjetivo) {
         for (let i = 1; i <= 600; i++) {
           const interes = capital * mensual;
-          totalInteres += interes;
           capital += interes + aportacion;
-          totalAportaciones += aportacion;
           if (capital >= capitalObjetivo) {
             meses = i;
             cumpleObjetivo = true;
@@ -190,6 +248,16 @@
         datosGrafica.push({ mes: i, total: capital.toFixed(2) });
       }
 
+      const porcentaje = capitalObjetivo ? Math.min(100, (capital / capitalObjetivo) * 100).toFixed(1) : null;
+      const progreso = document.getElementById("progresoFill");
+      if (porcentaje !== null) {
+        document.getElementById("barraProgreso").style.display = "block";
+        progreso.style.width = `${porcentaje}%`;
+        progreso.textContent = `${porcentaje}%`;
+      } else {
+        document.getElementById("barraProgreso").style.display = "none";
+      }
+
       document.getElementById('resultado').innerText =
         cumpleObjetivo
           ? `📈 Alcanzarás el capital objetivo de $${capitalObjetivo.toLocaleString()} en ${meses} meses.`
@@ -202,8 +270,7 @@
           <li>🔹 Total de aportaciones: <strong>$${totalAportaciones.toFixed(2)}</strong></li>
           <li>🔹 Intereses generados: <strong>$${totalInteres.toFixed(2)}</strong></li>
           <li>🔹 Monto final: <strong>$${capital.toFixed(2)}</strong></li>
-        </ul>
-      `;
+        </ul>`;
 
       document.getElementById('tablaResultados').style.display = 'table';
       graficar();
@@ -220,7 +287,7 @@
           datasets: [{
             label: 'Total acumulado',
             data: datosGrafica.map(p => p.total),
-            borderColor: '#2b6777',
+            borderColor: getComputedStyle(document.body).getPropertyValue('--primary').trim(),
             backgroundColor: 'rgba(43,103,119,0.1)',
             tension: 0.3,
             fill: true
@@ -283,14 +350,12 @@
       });
 
       const finalY = doc.previousAutoTable.finalY + 10;
-
       const canvas = document.getElementById('grafica');
       const imgData = canvas.toDataURL('image/png', 1.0);
 
       doc.setFontSize(14);
       doc.text("Gráfico de Crecimiento de la Inversión", 14, finalY);
       doc.addImage(imgData, 'PNG', 14, finalY + 5, 180, 80);
-
       doc.save("resumen-inversion.pdf");
     }
   </script>

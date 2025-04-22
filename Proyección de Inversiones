@@ -139,26 +139,96 @@
       document.body.classList.toggle('dark', modoOscuro);
     }
 
+    // Función para calcular la inversión
     function calcularInversion() {
-      // Lógica de cálculo (aquí se debe agregar el cálculo de la inversión)
-      console.log("Cálculo realizado");
+      let capitalInicial = parseFloat(document.getElementById('capitalInicial').value);
+      let tasa = parseFloat(document.getElementById('tasa').value) / 100;
+      let plazo = parseInt(document.getElementById('plazo').value);
+      let aportacionMensual = parseFloat(document.getElementById('aportacionMensual').value);
+      let retiroMensual = parseFloat(document.getElementById('retiroMensual').value) || 0;
+      
+      // Calcular los rendimientos mes a mes
+      let resultado = [];
+      let saldo = capitalInicial;
+      let totalAportaciones = capitalInicial;
+      let totalRendimiento = 0;
+
+      for (let i = 1; i <= plazo; i++) {
+        saldo += aportacionMensual;
+        saldo *= (1 + tasa / 12);
+        saldo -= retiroMensual;
+        totalAportaciones += aportacionMensual;
+        totalRendimiento = saldo - totalAportaciones;
+
+        resultado.push({
+          mes: i,
+          saldo: saldo.toFixed(2),
+          rendimiento: totalRendimiento.toFixed(2),
+          aportaciones: totalAportaciones.toFixed(2)
+        });
+      }
+
+      mostrarResultados(resultado);
     }
 
+    // Función para mostrar los resultados en la tabla
+    function mostrarResultados(resultado) {
+      let tabla = document.getElementById('tablaResultados');
+      tabla.innerHTML = `
+        <tr>
+          <th>Mes</th>
+          <th>Saldo Final</th>
+          <th>Rendimiento</th>
+          <th>Aportaciones Totales</th>
+        </tr>
+      `;
+
+      resultado.forEach(item => {
+        tabla.innerHTML += `
+          <tr>
+            <td>${item.mes}</td>
+            <td>${item.saldo}</td>
+            <td>${item.rendimiento}</td>
+            <td>${item.aportaciones}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Función para sugerir una aportación
     function sugerirAportacion() {
-      // Lógica para sugerir la aportación
-      console.log("Aportación sugerida");
+      let capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value);
+      let tasa = parseFloat(document.getElementById('tasa').value) / 100;
+      let plazo = parseInt(document.getElementById('plazo').value);
+
+      if (!capitalObjetivo) {
+        alert("Por favor, ingresa un capital objetivo");
+        return;
+      }
+
+      let aportacion = (capitalObjetivo - (capitalObjetivo * (1 + tasa / 12) ** plazo)) / plazo;
+      alert("Aportación mensual sugerida: $" + aportacion.toFixed(2));
     }
 
+    // Función para generar el PDF
     function descargarPDF() {
-      // Lógica para generar el PDF
-      console.log("Generar PDF");
+      let doc = new jsPDF();
+      let tabla = document.getElementById('tablaResultados').outerHTML;
+      doc.html(tabla, {
+        callback: function (doc) {
+          doc.save('inversion.pdf');
+        }
+      });
     }
 
+    // Función para exportar a Excel
     function exportarExcel() {
-      // Lógica para exportar a Excel
-      console.log("Exportar a Excel");
+      let tabla = document.getElementById('tablaResultados');
+      let wb = XLSX.utils.table_to_book(tabla, { sheet: "Resultados" });
+      XLSX.writeFile(wb, "inversion.xlsx");
     }
 
+    // Función para agregar una meta intermedia
     function agregarMeta() {
       const metasContainer = document.getElementById('metas');
       const metaInput = document.createElement('input');

@@ -84,6 +84,10 @@
       font-size: 0.85rem;
       padding: 6px 10px;
       width: auto;
+      cursor: pointer;
+    }
+    button:focus {
+      outline: none;
     }
   </style>
 </head>
@@ -128,7 +132,40 @@
   </div>
 
   <script>
-    // Código JavaScript permanece igual
+    let modoOscuro = false;
+
+    function toggleModoOscuro() {
+      modoOscuro = !modoOscuro;
+      document.body.classList.toggle('dark', modoOscuro);
+    }
+
+    function calcularInversion() {
+      // Lógica de cálculo (aquí se debe agregar el cálculo de la inversión)
+      console.log("Cálculo realizado");
+    }
+
+    function sugerirAportacion() {
+      // Lógica para sugerir la aportación
+      console.log("Aportación sugerida");
+    }
+
+    function descargarPDF() {
+      // Lógica para generar el PDF
+      console.log("Generar PDF");
+    }
+
+    function exportarExcel() {
+      // Lógica para exportar a Excel
+      console.log("Exportar a Excel");
+    }
+
+    function agregarMeta() {
+      const metasContainer = document.getElementById('metas');
+      const metaInput = document.createElement('input');
+      metaInput.type = 'number';
+      metaInput.placeholder = 'Meta intermedia';
+      metasContainer.appendChild(metaInput);
+    }
   </script>
 </body>
 </html>

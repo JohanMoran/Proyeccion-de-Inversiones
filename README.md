@@ -28,7 +28,7 @@
       padding: 20px;
       max-width: 900px;
       margin: auto;
-      transition: background-color 0.3s, color 0.3s;
+      transition: background-color 0.3s ease, color 0.3s ease; /* Transición suave para los colores */
     }
 
     h1 {
@@ -59,10 +59,20 @@
       cursor: pointer;
       font-size: 14px;
       font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.3s ease; /* Transición en el botón */
     }
 
     button:hover {
       background-color: var(--hover);
+      transform: scale(1.05); /* Animación de "escala" para el botón */
+    }
+
+    body.dark button {
+      background-color: #333; /* Cambiar color de fondo del botón en modo oscuro */
+    }
+
+    body.dark button:hover {
+      background-color: #555; /* Cambiar color al pasar el mouse en modo oscuro */
     }
 
     .result {
@@ -100,19 +110,19 @@
     }
 
     .topbar {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000; /* Asegura que el botón esté por encima de otros elementos */
-}
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
   <div class="topbar">
-    <button onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
+    <button onclick="toggleDarkMode()">🌚 Modo Oscuro</button>
   </div>
 
   <h1>Calculadora de Inversión</h1>
@@ -165,6 +175,8 @@
 
     function toggleDarkMode() {
       document.body.classList.toggle("dark");
+      const modoTexto = document.body.classList.contains("dark") ? "🌙 Modo Claro" : "🌚 Modo Oscuro";
+      document.querySelector('button').textContent = modoTexto;
     }
 
     function calcular() {
@@ -276,47 +288,16 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'resultado-inversion.csv';
+      a.download = 'resultados.csv';
       a.click();
-      URL.revokeObjectURL(url);
     }
 
-    async function descargarPDF() {
+    function descargarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-
-      doc.setFontSize(16);
-      doc.text("Resumen de Inversión", 14, 20);
-
-      doc.setFontSize(12);
-      doc.text("Total de aportaciones: $" + totalAportaciones.toFixed(2), 14, 30);
-      doc.text("Intereses generados: $" + totalInteres.toFixed(2), 14, 38);
-      doc.text("Monto final: $" + capital.toFixed(2), 14, 46);
-
-      const startY = 56;
-      const headers = [["Mes", "Fecha", "Aportación", "Interés", "Total"]];
-      const filas = [];
-      document.querySelectorAll('#tablaResultados tbody tr').forEach(row => {
-        const celdas = Array.from(row.querySelectorAll('td')).map(td => td.innerText);
-        filas.push(celdas);
-      });
-
-      doc.autoTable({
-        head: headers,
-        body: filas,
-        startY: startY,
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [43, 103, 119] },
-        margin: { left: 14, right: 14 }
-      });
-
-      const finalY = doc.previousAutoTable.finalY + 10;
-      const canvas = document.getElementById('grafica');
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      doc.text("Gráfico de Crecimiento de la Inversión", 14, finalY);
-      doc.addImage(imgData, 'PNG', 14, finalY + 5, 180, 80);
-
-      doc.save("resumen-inversion.pdf");
+      doc.text('Resumen de inversión', 20, 10);
+      doc.autoTable({ html: '#tablaResultados' });
+      doc.save('inversion.pdf');
     }
   </script>
 </body>

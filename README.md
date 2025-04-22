@@ -100,10 +100,14 @@
     }
 
     .topbar {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 15px;
-    }
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Asegura que el botón esté por encima de otros elementos */
+}
   </style>
 </head>
 <body>

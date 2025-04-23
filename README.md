@@ -121,10 +121,8 @@
   </style>
 </head>
 <body>
-  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA..." alt="Logo Bailmex" class="logo" />
-  <!-- Reemplazado por la versión en base64 real completa (omitido aquí por espacio) -->
+  <img src="data:image/png;base64,REEMPLAZAR_BASE64" alt="Logo Bailmex" class="logo" />
 
-  <!-- Formulario -->
   <label>Monto Inicial:</label>
   <input type="number" id="capitalInicial" />
 
@@ -171,6 +169,10 @@
     <button onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
   </div>
 
-  <!-- Tu script JavaScript sigue igual que antes... -->
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+    }
+  </script>
 </body>
 </html>

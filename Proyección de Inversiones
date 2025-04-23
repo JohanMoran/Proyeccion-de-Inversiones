@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -15,6 +14,19 @@
       --hover: #1b4d5b;
       --tabla-head: #ddeeee;
       --boton-texto: #fff;
+    }
+    body.dark table {
+      background-color: #1f1f1f;
+      color: #e0e0e0;
+    }
+    
+    body.dark th {
+      background-color: #333;
+      color: #fff;
+    }
+    
+    body.dark td {
+      border-color: #555;
     }
 
     body.dark {
@@ -248,29 +260,52 @@
       graficar();
     }
 
-    function graficar() {
-      const ctx = document.getElementById('grafica').getContext('2d');
-      if (window.miGrafica) window.miGrafica.destroy();
+function graficar() {
+  const ctx = document.getElementById('grafica').getContext('2d');
+  if (window.miGrafica) window.miGrafica.destroy();
 
-      window.miGrafica = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: datosGrafica.map(p => `Mes ${p.mes}`),
-          datasets: [{
-            label: 'Total acumulado',
-            data: datosGrafica.map(p => p.total),
-            borderColor: '#2b6777',
-            backgroundColor: 'rgba(43,103,119,0.1)',
-            tension: 0.3,
-            fill: true
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: true } }
+  const isDark = document.body.classList.contains('dark');
+  const textoColor = isDark ? '#e0e0e0' : '#333';
+  const fondoLinea = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(43,103,119,0.1)';
+
+  window.miGrafica = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: datosGrafica.map(p => `Mes ${p.mes}`),
+      datasets: [{
+        label: 'Total acumulado',
+        data: datosGrafica.map(p => p.total),
+        borderColor: '#2b6777',
+        backgroundColor: fondoLinea,
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          labels: {
+            color: textoColor
+          }
         }
-      });
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: textoColor
+          }
+        },
+        y: {
+          ticks: {
+            color: textoColor
+          }
+        }
+      }
     }
+  });
+}
+
 
     function descargarCSV() {
       let csv = 'Mes,Fecha,Aportación,Interés,Total\n';

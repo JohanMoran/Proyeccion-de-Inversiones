@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -35,12 +34,16 @@
       transition: background-color 0.4s, color 0.4s;
     }
 
-    #portada {
-      width: 100vw;
-      height: 180px;
-      background-color: var(--portada);
-      margin: -20px -20px 30px -20px;
-    }
+#portada {
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  width: 100vw;
+  height: 180px;
+  background-color: var(--portada);
+}
 
     label {
       margin-top: 15px;

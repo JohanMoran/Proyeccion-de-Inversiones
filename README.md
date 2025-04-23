@@ -41,7 +41,7 @@
   margin-left: -50vw;
   margin-right: -50vw;
   width: 100vw;
-  height: 180px;
+  height: 250px;
   background-color: var(--portada);
 }
 

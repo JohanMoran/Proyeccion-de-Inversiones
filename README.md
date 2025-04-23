@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -133,14 +134,11 @@
   <label>Fecha de inicio:</label>
   <input type="date" id="fechaInicio" />
 
-  <label>Inflación anual estimada (%):</label>
-  <input type="number" id="inflacion" placeholder="Ej: 4" />
-
-  <label>Tasa de impuesto sobre intereses (%):</label>
-  <input type="number" id="impuesto" placeholder="Ej: 20" />
-
   <label>Capital objetivo (opcional):</label>
   <input type="number" id="capitalObjetivo" placeholder="Ej: 500000" />
+
+  <label>Inflación anual estimada (%) (opcional):</label>
+  <input type="number" id="inflacion" placeholder="Ej: 4" />
 
   <div class="buttons">
     <button onclick="calcular()">Calcular</button>
@@ -179,17 +177,14 @@
       const tasa = parseFloat(document.getElementById('tasa').value) || 0;
       const plazo = parseInt(document.getElementById('plazo').value) || 0;
       const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
-      const inflacion = parseFloat(document.getElementById('inflacion').value) || 0;
-      const impuesto = parseFloat(document.getElementById('impuesto').value) || 0;
       const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
       const fechaInicio = new Date(document.getElementById('fechaInicio').value);
+      const inflacion = parseFloat(document.getElementById('inflacion').value) || 0;
 
       capital = capitalInicial;
       totalInteres = 0;
       totalAportaciones = 0;
       const mensual = tasa / 12 / 100;
-      const inflacionMensual = inflacion / 12 / 100;
-      const tasaImpuesto = impuesto / 100;
       const tabla = document.querySelector('#tablaResultados tbody');
       tabla.innerHTML = '';
       datosGrafica = [];
@@ -211,12 +206,10 @@
       }
 
       for (let i = 1; i <= meses; i++) {
-        const interesBruto = capital * mensual;
-        const interesNeto = interesBruto * (1 - tasaImpuesto);
-        totalInteres += interesNeto;
-        capital += interesNeto + aportacion;
+        const interes = capital * mensual;
+        totalInteres += interes;
+        capital += interes + aportacion;
         totalAportaciones += aportacion;
-        capital /= (1 + inflacionMensual);
 
         const fecha = new Date(fechaInicio);
         fecha.setMonth(fecha.getMonth() + i);
@@ -226,12 +219,14 @@
             <td>${i}</td>
             <td>${fecha.toLocaleDateString()}</td>
             <td>$${aportacion.toFixed(2)}</td>
-            <td>$${interesNeto.toFixed(2)}</td>
+            <td>$${interes.toFixed(2)}</td>
             <td>$${capital.toFixed(2)}</td>
           </tr>`;
 
         datosGrafica.push({ mes: i, total: capital.toFixed(2) });
       }
+
+      const inflacionAcumulada = capital * Math.pow(1 - inflacion / 100, meses / 12);
 
       document.getElementById('resultado').innerText =
         cumpleObjetivo
@@ -243,8 +238,9 @@
         <p><strong>Resumen:</strong></p>
         <ul>
           <li>Total de aportaciones: <strong>$${totalAportaciones.toFixed(2)}</strong></li>
-          <li>Intereses generados netos: <strong>$${totalInteres.toFixed(2)}</strong></li>
-          <li>Monto final ajustado por inflación: <strong>$${capital.toFixed(2)}</strong></li>
+          <li>Intereses generados: <strong>$${totalInteres.toFixed(2)}</strong></li>
+          <li>Monto final: <strong>$${capital.toFixed(2)}</strong></li>
+          <li>Valor ajustado a inflación: <strong>$${inflacionAcumulada.toFixed(2)}</strong></li>
         </ul>
       `;
 
@@ -303,8 +299,8 @@
 
       doc.setFontSize(12);
       doc.text("Total de aportaciones: $" + totalAportaciones.toFixed(2), 14, 30);
-      doc.text("Intereses generados netos: $" + totalInteres.toFixed(2), 14, 38);
-      doc.text("Monto final ajustado por inflación: $" + capital.toFixed(2), 14, 46);
+      doc.text("Intereses generados: $" + totalInteres.toFixed(2), 14, 38);
+      doc.text("Monto final: $" + capital.toFixed(2), 14, 46);
 
       const startY = 56;
       const headers = [["Mes", "Fecha", "Aportación", "Interés", "Total"]];

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -14,19 +15,7 @@
       --hover: #1b4d5b;
       --tabla-head: #ddeeee;
       --boton-texto: #fff;
-    }
-    body.dark table {
-      background-color: #1f1f1f;
-      color: #e0e0e0;
-    }
-    
-    body.dark th {
-      background-color: #333;
-      color: #fff;
-    }
-    
-    body.dark td {
-      border-color: #555;
+      --portada: #2e3552;
     }
 
     body.dark {
@@ -44,6 +33,13 @@
       max-width: 900px;
       margin: auto;
       transition: background-color 0.4s, color 0.4s;
+    }
+
+    #portada {
+      width: 100vw;
+      height: 180px;
+      background-color: var(--portada);
+      margin: -20px -20px 30px -20px;
     }
 
     label {
@@ -96,6 +92,7 @@
       width: 100%;
       margin-top: 20px;
       border-collapse: collapse;
+      background-color: #fff;
     }
 
     th, td {
@@ -108,8 +105,24 @@
       background-color: var(--tabla-head);
     }
 
+    body.dark table {
+      background-color: #1f1f1f;
+      color: #e0e0e0;
+    }
+
+    body.dark th {
+      background-color: #2c2c2c;
+    }
+
     canvas {
       margin-top: 30px;
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    body.dark canvas {
+      background-color: #1f1f1f;
     }
 
     .buttons {
@@ -129,6 +142,8 @@
   </style>
 </head>
 <body>
+  <div id="portada"></div>
+
   <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
 
   <label>Monto Inicial:</label>
@@ -146,11 +161,11 @@
   <label>Fecha de inicio:</label>
   <input type="date" id="fechaInicio" />
 
+  <label>Inflación anual estimada (%): <small>(opcional)</small></label>
+  <input type="number" id="inflacion" />
+
   <label>Capital objetivo (opcional):</label>
   <input type="number" id="capitalObjetivo" placeholder="Ej: 500000" />
-
-  <label>Inflación anual estimada (%) (opcional):</label>
-  <input type="number" id="inflacion" placeholder="Ej: 4" />
 
   <div class="buttons">
     <button onclick="calcular()">Calcular</button>
@@ -189,14 +204,16 @@
       const tasa = parseFloat(document.getElementById('tasa').value) || 0;
       const plazo = parseInt(document.getElementById('plazo').value) || 0;
       const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
+      const inflacion = parseFloat(document.getElementById('inflacion').value) || 0;
       const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
       const fechaInicio = new Date(document.getElementById('fechaInicio').value);
-      const inflacion = parseFloat(document.getElementById('inflacion').value) || 0;
 
       capital = capitalInicial;
       totalInteres = 0;
       totalAportaciones = 0;
-      const mensual = tasa / 12 / 100;
+      let tasaMensual = tasa / 12 / 100;
+      let inflacionMensual = inflacion / 12 / 100;
+
       const tabla = document.querySelector('#tablaResultados tbody');
       tabla.innerHTML = '';
       datosGrafica = [];
@@ -206,7 +223,7 @@
 
       if (capitalObjetivo) {
         for (let i = 1; i <= 600; i++) {
-          const interes = capital * mensual;
+          const interes = capital * tasaMensual;
           capital += interes + aportacion;
           if (capital >= capitalObjetivo) {
             meses = i;
@@ -218,10 +235,13 @@
       }
 
       for (let i = 1; i <= meses; i++) {
-        const interes = capital * mensual;
+        const interes = capital * tasaMensual;
         totalInteres += interes;
         capital += interes + aportacion;
         totalAportaciones += aportacion;
+
+        // Ajuste por inflación (valor real estimado)
+        let capitalAjustado = capital / Math.pow(1 + inflacionMensual, i);
 
         const fecha = new Date(fechaInicio);
         fecha.setMonth(fecha.getMonth() + i);
@@ -238,8 +258,6 @@
         datosGrafica.push({ mes: i, total: capital.toFixed(2) });
       }
 
-      const inflacionAcumulada = capital * Math.pow(1 - inflacion / 100, meses / 12);
-
       document.getElementById('resultado').innerText =
         cumpleObjetivo
           ? `📈 Alcanzarás el capital objetivo de $${capitalObjetivo.toLocaleString()} en ${meses} meses.`
@@ -252,7 +270,6 @@
           <li>Total de aportaciones: <strong>$${totalAportaciones.toFixed(2)}</strong></li>
           <li>Intereses generados: <strong>$${totalInteres.toFixed(2)}</strong></li>
           <li>Monto final: <strong>$${capital.toFixed(2)}</strong></li>
-          <li>Valor ajustado a inflación: <strong>$${inflacionAcumulada.toFixed(2)}</strong></li>
         </ul>
       `;
 
@@ -260,52 +277,29 @@
       graficar();
     }
 
-function graficar() {
-  const ctx = document.getElementById('grafica').getContext('2d');
-  if (window.miGrafica) window.miGrafica.destroy();
+    function graficar() {
+      const ctx = document.getElementById('grafica').getContext('2d');
+      if (window.miGrafica) window.miGrafica.destroy();
 
-  const isDark = document.body.classList.contains('dark');
-  const textoColor = isDark ? '#e0e0e0' : '#333';
-  const fondoLinea = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(43,103,119,0.1)';
-
-  window.miGrafica = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: datosGrafica.map(p => `Mes ${p.mes}`),
-      datasets: [{
-        label: 'Total acumulado',
-        data: datosGrafica.map(p => p.total),
-        borderColor: '#2b6777',
-        backgroundColor: fondoLinea,
-        tension: 0.3,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          labels: {
-            color: textoColor
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: {
-            color: textoColor
-          }
+      window.miGrafica = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: datosGrafica.map(p => `Mes ${p.mes}`),
+          datasets: [{
+            label: 'Total acumulado',
+            data: datosGrafica.map(p => p.total),
+            borderColor: '#2b6777',
+            backgroundColor: 'rgba(43,103,119,0.1)',
+            tension: 0.3,
+            fill: true
+          }]
         },
-        y: {
-          ticks: {
-            color: textoColor
-          }
+        options: {
+          responsive: true,
+          plugins: { legend: { display: true } }
         }
-      }
+      });
     }
-  });
-}
-
 
     function descargarCSV() {
       let csv = 'Mes,Fecha,Aportación,Interés,Total\n';

@@ -41,9 +41,19 @@
   margin-left: -50vw;
   margin-right: -50vw;
   width: 100vw;
-  height: 250px;
+  height: 180px;
   background-color: var(--portada);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
+#imagen-portada {
+  height: 100%;
+  object-fit: cover; /* O usa 'contain' si prefieres ver todo el logo sin recorte */
+}
+
 
     label {
       margin-top: 15px;
@@ -145,6 +155,12 @@
   </style>
 </head>
 <body>
+  <div id="portada">
+
+  <img id="imagen-portada" src="ruta/de/tu/imagen.jpg" alt="Imagen de portada">
+
+  </div>
+
   <div id="portada"></div>
 
   <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>

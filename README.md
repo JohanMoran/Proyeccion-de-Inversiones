@@ -84,7 +84,7 @@
     }
 
     .input-container input {
-      width: 40%;
+      width: 15%;
     }
 
     .input-container span {
@@ -95,7 +95,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      width: 55%; /* Esto asegura que el texto no se ajuste */
+      width: 80%; /* Esto asegura que el texto no se ajuste */
     }
 
     button {
@@ -189,22 +189,34 @@
   </div>
 
   <label>Tasa Anual (%):</label>
-  <input type="number" id="tasa" />
+  <div class="input-container">
+    <input type="number" id="tasa" />
+    <span>Tasa de Interés anual, inversionistas conservador (renta fija) 10% - 15%.</span>
+  </div>
 
   <label>Plazo (en meses):</label>
-  <input type="number" id="plazo" />
+  <div class="input-container">
+    <input type="number" id="plazo" />
+    <span>¿Cuántos años vas a realizar la inversión? ¿Cuál es tu horizonte de inversión?</span>
+  </div>
 
   <label>Aportación mensual:</label>
-  <input type="number" id="aportacion" />
+  <div class="input-container">
+    <input type="number" id="aportacion" />
+    <span>¿Cuánto puedes destinar a tu inversión al mes para incrementar tus rendimientos?</span>
+  </div>
 
   <label>Fecha de inicio:</label>
-  <input type="date" id="fechaInicio" />
-
-  <label>Inflación anual estimada (%): <small>(opcional)</small></label>
-  <input type="number" id="inflacion" />
+  <div class="input-container">
+    <input type="date" id="fechaInicio" />
+    <span>Fecha en que tienes pensado dar inicio a tu inversión</span>
+  </div>
 
   <label>Capital objetivo (opcional):</label>
-  <input type="number" id="capitalObjetivo" placeholder="Ej: 500000" />
+  <div class="input-container">
+    <input type="number" id="capitalObjetivo" placeholder="Ej: 500000" />
+    <span>¿Ya tienes un objetivo (ir de viaje, comprar un auto, etc.)? Elige un monto con el que alcanzarás ese objetivo</span>
+  </div>
 
   <div class="buttons">
     <button onclick="calcular()">Calcular</button>
@@ -341,19 +353,19 @@
 
     function descargarCSV() {
       let csv = 'Mes,Fecha,Aportación,Interés,Total\n';
-      const filas = document.querySelectorAll('#tablaResultados tbody tr');
-      filas.forEach(fila => {
-        const columnas = fila.querySelectorAll('td');
-        const datos = Array.from(columnas).map(td => td.innerText.replace('$', '').replace(',', ''));
-        csv += datos.join(',') + '\n';
+      const tabla = document.querySelector('#tablaResultados tbody');
+      tabla.querySelectorAll('tr').forEach(row => {
+        row.querySelectorAll('td').forEach((cell, index) => {
+          csv += cell.innerText + (index === 4 ? '\n' : ',');
+        });
       });
 
       const blob = new Blob([csv], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'resultado-inversion.csv';
-      a.click();
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'resultados_inversion.csv';
+      link.click();
       URL.revokeObjectURL(url);
     }
 

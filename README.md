@@ -47,9 +47,10 @@
       min-height: 150px;
     }
     #portada img {
-      max-height: 110px;
-      object-fit: contain;
-    }
+  width: 100%;
+  object-fit: cover; /* Cubre todo el espacio sin deformarse */
+  border-radius: 8px;
+}
     label {
       margin-top: 15px;
       display: block;

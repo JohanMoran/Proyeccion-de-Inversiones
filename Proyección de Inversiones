@@ -18,7 +18,7 @@
       --portada: #2e3552;
       --verde: #28a745;
       --verde-hover: #218838;
-      --texto-grande: 16px; /* Nuevo tamaño de texto */
+      --texto-grande: 16px;
     }
 
     body.dark {
@@ -38,11 +38,20 @@
       transition: background-color 0.4s, color 0.4s;
     }
 
+    #portada {
+      background-color: var(--portada);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
     label {
       margin-top: 15px;
       display: block;
       font-weight: 600;
-      font-size: var(--texto-grande); /* Aumenta el tamaño del texto */
+      font-size: var(--texto-grande);
     }
 
     input {
@@ -178,7 +187,8 @@
 </head>
 <body>
   <div id="portada">
-    <img id="imagen-portada" src="ruta/de/tu/imagen.jpg" alt="Imagen de portada">
+    <h1>Calculadora de Inversión</h1>
+    <p>Optimiza tu inversión y alcanza tus objetivos financieros con nuestra herramienta.</p>
   </div>
 
   <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
@@ -308,26 +318,21 @@
             <td>$${aportacion.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
             <td>$${interes.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
             <td>$${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
-          </tr>`;
+          </tr>
+        `;
 
-        datosGrafica.push({ mes: i, total: capital.toFixed(2) });
+        datosGrafica.push({ mes: i, total: capital });
       }
 
-      document.getElementById('resultado').innerText =
-        cumpleObjetivo
-          ? `📈 Alcanzarás el capital objetivo de $${capitalObjetivo.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} en ${meses} meses.`
-          : `💰 Monto final estimado: $${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} (Interés generado: $${totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })})`;
-
-      document.getElementById('resumenFinal').innerHTML = `
-        <hr style="margin-top:20px;"/>
-        <p><strong>Resumen de Inversión:</strong></p>
-        <p>Capital inicial: $${capitalInicial.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
-        <p>Tasa de interés anual: ${tasa}%</p>
-        <p>Plazo: ${meses} meses</p>
-        <p>Aportación mensual: $${aportacion.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
-        <p>Total aportado: $${totalAportaciones.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
-        <p>Total interés generado: $${totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
-        <p><strong>Total al final del plazo: $${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</strong></p>
+      document.getElementById('resultado').innerHTML = `
+        <strong>Resumen de Inversión:</strong><br>
+        Capital inicial: $${capitalInicial.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
+        Tasa de interés anual: ${tasa}%<br>
+        Plazo: ${meses} meses<br>
+        Aportación mensual: $${aportacion.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
+        Total aportado: $${totalAportaciones.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
+        Total interés generado: $${totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
+        <strong>Total al final del plazo: $${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</strong>
       `;
       generarGrafico();
     }
@@ -352,7 +357,7 @@
     function descargarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      
+
       // Resumen de inversión
       doc.setFontSize(14);
       doc.text("Resumen de Inversión", 10, 10);
@@ -360,7 +365,7 @@
       doc.text(`Tasa Anual: ${document.getElementById('tasa').value}%`, 10, 30);
       doc.text(`Plazo: ${document.getElementById('plazo').value} meses`, 10, 40);
       doc.text(`Aportación mensual: $${document.getElementById('aportacion').value}`, 10, 50);
-      
+
       // Tabla
       doc.autoTable({
         html: '#tablaResultados',

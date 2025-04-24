@@ -111,14 +111,16 @@
       margin-top: 20px;
       border-collapse: collapse;
       background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     th, td {
-      padding: 8px;
+      padding: 10px;
       text-align: center;
-      border: 1px solid #ccc;
+      border-bottom: 1px solid #eee;
     }
     th {
-      background-color: var(--tabla-head);
+      background-color: var(--primario);
+      color: white;
     }
     body.dark table {
       background-color: #1f1f1f;
@@ -126,6 +128,9 @@
     }
     body.dark th {
       background-color: #2c2c2c;
+    }
+    body.dark td {
+      border-color: #444;
     }
     canvas {
       margin-top: 30px;
@@ -218,7 +223,7 @@
   <div class="result" id="resumenFinal"></div>
   <canvas id="grafica" height="120"></canvas>
 
-  <table id="tablaResultados" style="display:none">
+  <table id="tablaResultados">
     <thead>
       <tr>
         <th>Mes</th>
@@ -234,12 +239,12 @@
   <script>
     let datosGrafica = [];
     let totalAportaciones = 0, totalInteres = 0, capital = 0;
-    let chart = null; // Para manejar la gráfica y actualizarla
+    let chart = null;
 
     function toggleDarkMode() {
       document.body.classList.toggle("dark");
       if (chart) {
-        chart.update(); // Actualiza la gráfica al cambiar modo
+        chart.update();
       }
     }
 
@@ -266,7 +271,6 @@
       let meses = plazo;
       let cumpleObjetivo = false;
 
-      // Calcular si hay objetivo
       if (capitalObjetivo) {
         for (let i = 1; i <= 600; i++) {
           const interes = capital * tasaMensual;
@@ -277,10 +281,9 @@
             break;
           }
         }
-        capital = capitalInicial; // Reset para cálculo real
+        capital = capitalInicial;
       }
 
-      // Generar tabla
       for (let i = 1; i <= meses; i++) {
         const interes = capital * tasaMensual;
         totalInteres += interes;
@@ -293,26 +296,25 @@
         tabla.innerHTML += `
           <tr>
             <td>${i}</td>
-            <td>${fecha.toLocaleDateString()}</td>
-            <td>$${aportacion.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
-            <td>$${interes.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
-            <td>$${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
+            <td>${fecha.toLocaleDateString('es-MX')}</td>
+            <td>${aportacion.toLocaleString('es-MX')}</td>
+            <td>${interes.toLocaleString('es-MX')}</td>
+            <td>${capital.toLocaleString('es-MX')}</td>
           </tr>
         `;
 
         datosGrafica.push({ mes: i, total: capital });
       }
 
-      // Mostrar resultados
       document.getElementById('resultado').innerHTML = `
         <strong>Resumen de Inversión:</strong><br>
-        Capital inicial: $${capitalInicial.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
+        Capital inicial: ${capitalInicial.toLocaleString('es-MX')}<br>
         Tasa de interés anual: ${tasa}%<br>
         Plazo: ${meses} meses<br>
-        Aportación mensual: $${aportacion.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
-        Total aportado: $${totalAportaciones.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
-        Total interés generado: $${totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
-        <strong>Total al final del plazo: $${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</strong>
+        Aportación mensual: ${aportacion.toLocaleString('es-MX')}<br>
+        Total aportado: ${totalAportaciones.toLocaleString('es-MX')}<br>
+        Total interés generado: ${totalInteres.toLocaleString('es-MX')}<br>
+        <strong>Total al final del plazo: ${capital.toLocaleString('es-MX')}</strong>
       `;
 
       if (cumpleObjetivo) {
@@ -327,7 +329,6 @@
     function generarGrafico() {
       const ctx = document.getElementById('grafica').getContext('2d');
       
-      // Destruir gráfica anterior si existe
       if (chart) {
         chart.destroy();
       }
@@ -354,7 +355,7 @@
             tooltip: {
               callbacks: {
                 label: (context) => {
-                  return ` $${context.raw.toLocaleString('es-MX')} MXN`;
+                  return ` ${context.raw.toLocaleString('es-MX')} MXN`;
                 }
               }
             }
@@ -363,7 +364,7 @@
             y: {
               beginAtZero: false,
               ticks: {
-                callback: (value) => `$${value.toLocaleString('es-MX')}`
+                callback: (value) => `${value.toLocaleString('es-MX')}`
               }
             }
           }
@@ -375,19 +376,16 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       
-      // Título
       doc.setFontSize(18);
       doc.setTextColor(43, 103, 119);
       doc.text("Resumen de Inversión", 10, 15);
       
-      // Datos básicos
       doc.setFontSize(12);
       doc.setTextColor(0, 0, 0);
-      doc.text(`Capital inicial: $${document.getElementById('capitalInicial').value}`, 10, 25);
+      doc.text(`Capital inicial: ${document.getElementById('capitalInicial').value}`, 10, 25);
       doc.text(`Tasa anual: ${document.getElementById('tasa').value}%`, 10, 35);
       doc.text(`Plazo: ${document.getElementById('plazo').value} meses`, 10, 45);
       
-      // Tabla
       doc.autoTable({
         html: '#tablaResultados',
         startY: 55,
@@ -398,7 +396,6 @@
         }
       });
       
-      // Gráfico (convertir canvas a imagen)
       const canvas = document.getElementById('grafica');
       const imgData = canvas.toDataURL('image/png');
       doc.addImage(imgData, 'PNG', 10, doc.lastAutoTable.finalY + 10, 180, 100);

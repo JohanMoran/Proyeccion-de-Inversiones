@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -15,6 +16,8 @@
       --tabla-head: #ddeeee;
       --boton-texto: #fff;
       --portada: #2e3552;
+      --verde: #28a745;
+      --verde-hover: #218838;
     }
 
     body.dark {
@@ -84,7 +87,7 @@
     }
 
     .input-container input {
-      width: 15%;
+      width: 20%;
     }
 
     .input-container span {
@@ -95,7 +98,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      width: 80%; /* Esto asegura que el texto no se ajuste */
+      width: 80%;
     }
 
     button {
@@ -113,6 +116,15 @@
     button:hover {
       background-color: var(--hover);
       transform: scale(1.03);
+    }
+
+    .boton-calcular {
+      background-color: var(--verde);
+      width: 160px;
+    }
+
+    .boton-calcular:hover {
+      background-color: var(--verde-hover);
     }
 
     .result {
@@ -173,6 +185,18 @@
       z-index: 999;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
+
+    .leyenda {
+      font-size: 14px;
+      font-style: italic;
+      margin-top: 20px;
+      margin-bottom: -5px;
+      color: #555;
+    }
+
+    body.dark .leyenda {
+      color: #aaa;
+    }
   </style>
 </head>
 <body>
@@ -218,8 +242,12 @@
     <span>¿Ya tienes un objetivo (ir de viaje, comprar un auto, etc.)? Elige un monto con el que alcanzarás ese objetivo</span>
   </div>
 
+  <div class="leyenda">
+    Calculadora de Interés Compuesto con Amortización mensual. Herramienta para uso estrictamente con fines informativos y educativos.
+  </div>
+
   <div class="buttons">
-    <button onclick="calcular()">Calcular</button>
+    <button class="boton-calcular" onclick="calcular()">Calcular</button>
     <button onclick="descargarCSV()">Descargar Excel</button>
     <button onclick="descargarPDF()">Descargar PDF</button>
   </div>
@@ -255,7 +283,7 @@
       const tasa = parseFloat(document.getElementById('tasa').value) || 0;
       const plazo = parseInt(document.getElementById('plazo').value) || 0;
       const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
-      const inflacion = parseFloat(document.getElementById('inflacion').value) || 0;
+      const inflacion = parseFloat(document.getElementById('inflacion')?.value) || 0;
       const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
       const fechaInicio = new Date(document.getElementById('fechaInicio').value);
 

@@ -1,4 +1,4 @@
-<html lang="es">
+  <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -34,26 +34,25 @@
       transition: background-color 0.4s, color 0.4s;
     }
 
-#portada {
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  width: 100vw;
-  height: 180px;
-  background-color: var(--portada);
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+    #portada {
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      width: 100vw;
+      height: 180px;
+      background-color: var(--portada);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
 
-#imagen-portada {
-  height: 100%;
-  object-fit: cover; /* O usa 'contain' si prefieres ver todo el logo sin recorte */
-}
-
+    #imagen-portada {
+      height: 100%;
+      object-fit: cover;
+    }
 
     label {
       margin-top: 15px;
@@ -156,16 +155,19 @@
 </head>
 <body>
   <div id="portada">
-
-  <img id="imagen-portada" src="ruta/de/tu/imagen.jpg" alt="Imagen de portada">
-
+    <img id="imagen-portada" src="ruta/de/tu/imagen.jpg" alt="Imagen de portada">
   </div>
 
   <div id="portada"></div>
 
   <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
 
-  <label>Monto Inicial:</label>
+  <label>
+    Monto Inicial:
+    <span style="font-weight: normal; font-size: 13px; margin-left: 10px;">
+      ¿Con qué cantidad cuentas en este momento? ¿Con cuánto empezarás tu inversión?
+    </span>
+  </label>
   <input type="number" id="capitalInicial" />
 
   <label>Tasa Anual (%):</label>
@@ -259,7 +261,6 @@
         capital += interes + aportacion;
         totalAportaciones += aportacion;
 
-        // Ajuste por inflación (valor real estimado)
         let capitalAjustado = capital / Math.pow(1 + inflacionMensual, i);
 
         const fecha = new Date(fechaInicio);

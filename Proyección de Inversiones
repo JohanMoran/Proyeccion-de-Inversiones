@@ -41,6 +41,14 @@
       padding: 20px;
       border-radius: 8px;
       margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+    }
+    #portada img {
+      max-height: 110px;
+      object-fit: contain;
     }
     label {
       margin-top: 15px;
@@ -75,11 +83,9 @@
       font-weight: normal;
       font-size: 14px;
       color: var(--texto-claro);
-      display: inline-block;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 80%;
+      width: 100%;
+      padding-left: 10px;
+      word-wrap: break-word;
     }
     button {
       padding: 10px 16px;
@@ -111,7 +117,7 @@
       border-collapse: collapse;
       background-color: #fff;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      display: none; /* Ocultar inicialmente */
+      display: none;
     }
     #tablaResultados th, 
     #tablaResultados td {
@@ -181,7 +187,7 @@
       padding: 12px;
       border-radius: 8px 8px 0 0;
       font-weight: bold;
-      display: none; /* Ocultar inicialmente */
+      display: none;
     }
     body.dark .tabla-titulo {
       background-color: #2c2c2c;
@@ -190,8 +196,12 @@
 </head>
 <body>
   <div id="portada">
+    <!-- Reemplaza esta línea con tu imagen -->
+    <img src="ROBPAIERO_TUASESORDECONFIANZA.png" alt="Calculadora de Inversión">
+    <!-- Texto original comentado:
     <h1>Calculadora de Inversión</h1>
     <p>Optimiza tu inversión y alcanza tus objetivos financieros con nuestra herramienta.</p>
+    -->
   </div>
   <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
 
@@ -348,7 +358,6 @@
         `;
       }
 
-      // Mostrar tabla y título solo después de calcular
       document.getElementById('tablaResultados').style.display = "table";
       document.getElementById('tablaTitulo').style.display = "block";
 
@@ -418,18 +427,15 @@
         format: 'a4'
       });
       
-      // Logo o título (opcional)
       doc.setFontSize(20);
       doc.setTextColor(43, 103, 119);
       doc.setFont('helvetica', 'bold');
       doc.text("Reporte de Inversión", 105, 15, { align: 'center' });
       
-      // Línea decorativa
       doc.setDrawColor(43, 103, 119);
       doc.setLineWidth(0.5);
       doc.line(20, 20, 190, 20);
       
-      // Información resumida en cuadros
       doc.setFontSize(12);
       doc.setTextColor(0, 0, 0);
       doc.setFont('helvetica', 'normal');
@@ -439,7 +445,6 @@
       const plazo = parseInt(document.getElementById('plazo').value) || 0;
       const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
       
-      // Primera sección: Datos clave
       doc.setFillColor(240, 240, 240);
       doc.rect(20, 25, 170, 30, 'F');
       doc.text("Datos de la inversión", 25, 30);
@@ -447,7 +452,6 @@
       doc.text(`Tasa anual: ${tasa}% | Plazo: ${plazo} meses`, 25, 44);
       doc.text(`Aportación mensual: ${formatCurrency(aportacion)}`, 25, 51);
       
-      // Segunda sección: Resultados
       doc.setFillColor(230, 245, 230);
       doc.rect(20, 60, 170, 20, 'F');
       doc.text("Resultados finales", 25, 65);
@@ -457,7 +461,6 @@
       doc.text(`Total acumulado: ${formatCurrency(capital)}`, 25, 79);
       doc.setFont('helvetica', 'normal');
       
-      // Tabla de amortización (autoTable)
       doc.autoTable({
         html: '#tablaResultados',
         startY: 85,
@@ -484,12 +487,10 @@
         }
       });
       
-      // Gráfico (convertir canvas a imagen)
       const canvas = document.getElementById('grafica');
       const imgData = canvas.toDataURL('image/png');
       doc.addImage(imgData, 'PNG', 20, doc.lastAutoTable.finalY + 10, 170, 80);
       
-      // Pie de página
       doc.setFontSize(10);
       doc.setTextColor(100);
       doc.text("© Calculadora de Inversión - " + new Date().toLocaleDateString(), 105, 285, { align: 'center' });

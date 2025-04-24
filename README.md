@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -106,30 +105,35 @@
       font-weight: bold;
       color: var(--primario);
     }
-    table {
+    #tablaResultados {
       width: 100%;
       margin-top: 20px;
       border-collapse: collapse;
       background-color: #fff;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: none; /* Ocultar inicialmente */
     }
-    th, td {
-      padding: 10px;
+    #tablaResultados th, 
+    #tablaResultados td {
+      padding: 12px 8px;
       text-align: center;
       border-bottom: 1px solid #eee;
+      white-space: nowrap;
     }
-    th {
+    #tablaResultados th {
       background-color: var(--primario);
       color: white;
+      position: sticky;
+      top: 0;
     }
-    body.dark table {
+    body.dark #tablaResultados {
       background-color: #1f1f1f;
       color: #e0e0e0;
     }
-    body.dark th {
+    body.dark #tablaResultados th {
       background-color: #2c2c2c;
     }
-    body.dark td {
+    body.dark #tablaResultados td {
       border-color: #444;
     }
     canvas {
@@ -137,6 +141,7 @@
       background-color: #fff;
       border-radius: 8px;
       padding: 10px;
+      width: 100% !important;
     }
     body.dark canvas {
       background-color: #1f1f1f;
@@ -163,6 +168,23 @@
     }
     body.dark .leyenda {
       color: #aaa;
+    }
+    .tabla-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .tabla-titulo {
+      background-color: var(--primario);
+      color: white;
+      padding: 12px;
+      border-radius: 8px 8px 0 0;
+      font-weight: bold;
+      display: none; /* Ocultar inicialmente */
+    }
+    body.dark .tabla-titulo {
+      background-color: #2c2c2c;
     }
   </style>
 </head>
@@ -223,18 +245,21 @@
   <div class="result" id="resumenFinal"></div>
   <canvas id="grafica" height="120"></canvas>
 
-  <table id="tablaResultados">
-    <thead>
-      <tr>
-        <th>Mes</th>
-        <th>Fecha</th>
-        <th>Aportación</th>
-        <th>Interés</th>
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="tabla-titulo" id="tablaTitulo">Tabla Amortizada de Inversión</div>
+  <div class="tabla-container">
+    <table id="tablaResultados">
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th>Fecha</th>
+          <th>Aportación ($)</th>
+          <th>Interés ($)</th>
+          <th>Total ($)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <script>
     let datosGrafica = [];
@@ -297,9 +322,9 @@
           <tr>
             <td>${i}</td>
             <td>${fecha.toLocaleDateString('es-MX')}</td>
-            <td>${aportacion.toLocaleString('es-MX')}</td>
-            <td>${interes.toLocaleString('es-MX')}</td>
-            <td>${capital.toLocaleString('es-MX')}</td>
+            <td>${formatCurrency(aportacion)}</td>
+            <td>${formatCurrency(interes)}</td>
+            <td>${formatCurrency(capital)}</td>
           </tr>
         `;
 
@@ -308,13 +333,13 @@
 
       document.getElementById('resultado').innerHTML = `
         <strong>Resumen de Inversión:</strong><br>
-        Capital inicial: ${capitalInicial.toLocaleString('es-MX')}<br>
+        Capital inicial: ${formatCurrency(capitalInicial)}<br>
         Tasa de interés anual: ${tasa}%<br>
         Plazo: ${meses} meses<br>
-        Aportación mensual: ${aportacion.toLocaleString('es-MX')}<br>
-        Total aportado: ${totalAportaciones.toLocaleString('es-MX')}<br>
-        Total interés generado: ${totalInteres.toLocaleString('es-MX')}<br>
-        <strong>Total al final del plazo: ${capital.toLocaleString('es-MX')}</strong>
+        Aportación mensual: ${formatCurrency(aportacion)}<br>
+        Total aportado: ${formatCurrency(totalAportaciones)}<br>
+        Total interés generado: ${formatCurrency(totalInteres)}<br>
+        <strong>Total al final del plazo: ${formatCurrency(capital)}</strong>
       `;
 
       if (cumpleObjetivo) {
@@ -323,7 +348,20 @@
         `;
       }
 
+      // Mostrar tabla y título solo después de calcular
+      document.getElementById('tablaResultados').style.display = "table";
+      document.getElementById('tablaTitulo').style.display = "block";
+
       generarGrafico();
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('es-MX', { 
+        style: 'currency', 
+        currency: 'MXN',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(value);
     }
 
     function generarGrafico() {
@@ -355,7 +393,7 @@
             tooltip: {
               callbacks: {
                 label: (context) => {
-                  return ` ${context.raw.toLocaleString('es-MX')} MXN`;
+                  return ` ${formatCurrency(context.raw)}`;
                 }
               }
             }
@@ -364,7 +402,7 @@
             y: {
               beginAtZero: false,
               ticks: {
-                callback: (value) => `${value.toLocaleString('es-MX')}`
+                callback: (value) => formatCurrency(value)
               }
             }
           }
@@ -374,33 +412,89 @@
 
     function descargarPDF() {
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
       
-      doc.setFontSize(18);
+      // Logo o título (opcional)
+      doc.setFontSize(20);
       doc.setTextColor(43, 103, 119);
-      doc.text("Resumen de Inversión", 10, 15);
+      doc.setFont('helvetica', 'bold');
+      doc.text("Reporte de Inversión", 105, 15, { align: 'center' });
       
+      // Línea decorativa
+      doc.setDrawColor(43, 103, 119);
+      doc.setLineWidth(0.5);
+      doc.line(20, 20, 190, 20);
+      
+      // Información resumida en cuadros
       doc.setFontSize(12);
       doc.setTextColor(0, 0, 0);
-      doc.text(`Capital inicial: ${document.getElementById('capitalInicial').value}`, 10, 25);
-      doc.text(`Tasa anual: ${document.getElementById('tasa').value}%`, 10, 35);
-      doc.text(`Plazo: ${document.getElementById('plazo').value} meses`, 10, 45);
+      doc.setFont('helvetica', 'normal');
       
+      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
+      const tasa = parseFloat(document.getElementById('tasa').value) || 0;
+      const plazo = parseInt(document.getElementById('plazo').value) || 0;
+      const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
+      
+      // Primera sección: Datos clave
+      doc.setFillColor(240, 240, 240);
+      doc.rect(20, 25, 170, 30, 'F');
+      doc.text("Datos de la inversión", 25, 30);
+      doc.text(`Capital inicial: ${formatCurrency(capitalInicial)}`, 25, 37);
+      doc.text(`Tasa anual: ${tasa}% | Plazo: ${plazo} meses`, 25, 44);
+      doc.text(`Aportación mensual: ${formatCurrency(aportacion)}`, 25, 51);
+      
+      // Segunda sección: Resultados
+      doc.setFillColor(230, 245, 230);
+      doc.rect(20, 60, 170, 20, 'F');
+      doc.text("Resultados finales", 25, 65);
+      doc.text(`Total aportado: ${formatCurrency(totalAportaciones)}`, 25, 72);
+      doc.text(`Interés generado: ${formatCurrency(totalInteres)}`, 100, 72);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`Total acumulado: ${formatCurrency(capital)}`, 25, 79);
+      doc.setFont('helvetica', 'normal');
+      
+      // Tabla de amortización (autoTable)
       doc.autoTable({
         html: '#tablaResultados',
-        startY: 55,
+        startY: 85,
         theme: 'grid',
         headStyles: {
           fillColor: [43, 103, 119],
-          textColor: 255
+          textColor: 255,
+          fontSize: 10
+        },
+        bodyStyles: {
+          fontSize: 8
+        },
+        margin: { top: 10 },
+        styles: {
+          overflow: 'linebreak',
+          cellWidth: 'wrap'
+        },
+        columnStyles: {
+          0: { cellWidth: 15 },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 25 },
+          3: { cellWidth: 25 },
+          4: { cellWidth: 25 }
         }
       });
       
+      // Gráfico (convertir canvas a imagen)
       const canvas = document.getElementById('grafica');
       const imgData = canvas.toDataURL('image/png');
-      doc.addImage(imgData, 'PNG', 10, doc.lastAutoTable.finalY + 10, 180, 100);
+      doc.addImage(imgData, 'PNG', 20, doc.lastAutoTable.finalY + 10, 170, 80);
       
-      doc.save('inversion.pdf');
+      // Pie de página
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text("© Calculadora de Inversión - " + new Date().toLocaleDateString(), 105, 285, { align: 'center' });
+      
+      doc.save('reporte_inversion.pdf');
     }
 
     function descargarCSV() {
@@ -409,12 +503,12 @@
         return;
       }
       
-      let csv = "Mes,Fecha,Aportación,Interés,Total\n";
+      let csv = "Mes,Fecha,Aportación ($),Interés ($),Total ($)\n";
       const rows = document.querySelectorAll('#tablaResultados tbody tr');
       
       rows.forEach(row => {
         const cells = row.querySelectorAll('td');
-        csv += `"${cells[0].textContent}","${cells[1].textContent}","${cells[2].textContent}","${cells[3].textContent}","${cells[4].textContent}"\n`;
+        csv += `"${cells[0].textContent}","${cells[1].textContent}","${cells[2].textContent.replace('$','')}","${cells[3].textContent.replace('$','')}","${cells[4].textContent.replace('$','')}"\n`;
       });
       
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });

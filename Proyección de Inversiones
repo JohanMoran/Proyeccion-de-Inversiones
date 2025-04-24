@@ -18,6 +18,7 @@
       --portada: #2e3552;
       --verde: #28a745;
       --verde-hover: #218838;
+      --texto-grande: 16px; /* Nuevo tamaño de texto */
     }
 
     body.dark {
@@ -37,30 +38,11 @@
       transition: background-color 0.4s, color 0.4s;
     }
 
-    #portada {
-      position: relative;
-      left: 50%;
-      right: 50%;
-      margin-left: -50vw;
-      margin-right: -50vw;
-      width: 100vw;
-      height: 180px;
-      background-color: var(--portada);
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #imagen-portada {
-      height: 100%;
-      object-fit: cover;
-    }
-
     label {
       margin-top: 15px;
       display: block;
       font-weight: 600;
+      font-size: var(--texto-grande); /* Aumenta el tamaño del texto */
     }
 
     input {
@@ -92,7 +74,7 @@
 
     .input-container span {
       font-weight: normal;
-      font-size: 13px;
+      font-size: 14px;
       color: var(--texto-claro);
       display: inline-block;
       white-space: nowrap;
@@ -111,11 +93,6 @@
       font-size: 14px;
       font-weight: 600;
       transition: background-color 0.3s, transform 0.2s;
-    }
-
-    button:hover {
-      background-color: var(--hover);
-      transform: scale(1.03);
     }
 
     .boton-calcular {
@@ -328,9 +305,9 @@
           <tr>
             <td>${i}</td>
             <td>${fecha.toLocaleDateString()}</td>
-            <td>$${aportacion.toFixed(2)}</td>
-            <td>$${interes.toFixed(2)}</td>
-            <td>$${capital.toFixed(2)}</td>
+            <td>$${aportacion.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
+            <td>$${interes.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
+            <td>$${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
           </tr>`;
 
         datosGrafica.push({ mes: i, total: capital.toFixed(2) });
@@ -338,71 +315,70 @@
 
       document.getElementById('resultado').innerText =
         cumpleObjetivo
-          ? `📈 Alcanzarás el capital objetivo de $${capitalObjetivo.toLocaleString()} en ${meses} meses.`
-          : `💰 Monto final estimado: $${capital.toFixed(2)} (Interés generado: $${totalInteres.toFixed(2)})`;
+          ? `📈 Alcanzarás el capital objetivo de $${capitalObjetivo.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} en ${meses} meses.`
+          : `💰 Monto final estimado: $${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })} (Interés generado: $${totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })})`;
 
       document.getElementById('resumenFinal').innerHTML = `
         <hr style="margin-top:20px;"/>
-        <p><strong>Resumen:</strong></p>
-        <ul>
-          <li>Total de aportaciones: <strong>$${totalAportaciones.toFixed(2)}</strong></li>
-          <li>Intereses generados: <strong>$${totalInteres.toFixed(2)}</strong></li>
-          <li>Monto final: <strong>$${capital.toFixed(2)}</strong></li>
-        </ul>
+        <p><strong>Resumen de Inversión:</strong></p>
+        <p>Capital inicial: $${capitalInicial.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
+        <p>Tasa de interés anual: ${tasa}%</p>
+        <p>Plazo: ${meses} meses</p>
+        <p>Aportación mensual: $${aportacion.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
+        <p>Total aportado: $${totalAportaciones.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
+        <p>Total interés generado: $${totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</p>
+        <p><strong>Total al final del plazo: $${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</strong></p>
       `;
-
-      document.getElementById('tablaResultados').style.display = 'table';
-      graficar();
+      generarGrafico();
     }
 
-    function graficar() {
-      const ctx = document.getElementById('grafica').getContext('2d');
-      if (window.miGrafica) window.miGrafica.destroy();
-
-      window.miGrafica = new Chart(ctx, {
+    function generarGrafico() {
+      let ctx = document.getElementById('grafica').getContext('2d');
+      new Chart(ctx, {
         type: 'line',
         data: {
-          labels: datosGrafica.map(p => `Mes ${p.mes}`),
+          labels: datosGrafica.map(d => d.mes),
           datasets: [{
             label: 'Total acumulado',
-            data: datosGrafica.map(p => p.total),
-            borderColor: '#2b6777',
-            backgroundColor: 'rgba(43,103,119,0.1)',
-            tension: 0.3,
-            fill: true
+            data: datosGrafica.map(d => d.total),
+            borderColor: 'rgb(75, 192, 192)',
+            fill: false,
+            tension: 0.1
           }]
-        },
-        options: {
-          responsive: true,
-          plugins: { legend: { display: true } }
         }
       });
-    }
-
-    function descargarCSV() {
-      let csv = 'Mes,Fecha,Aportación,Interés,Total\n';
-      const tabla = document.querySelector('#tablaResultados tbody');
-      tabla.querySelectorAll('tr').forEach(row => {
-        row.querySelectorAll('td').forEach((cell, index) => {
-          csv += cell.innerText + (index === 4 ? '\n' : ',');
-        });
-      });
-
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'resultados_inversion.csv';
-      link.click();
-      URL.revokeObjectURL(url);
     }
 
     function descargarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-      doc.text('Resumen de Inversión', 14, 20);
-      doc.autoTable({ html: '#tablaResultados', startY: 30 });
-      doc.save('resultado-inversion.pdf');
+      
+      // Resumen de inversión
+      doc.setFontSize(14);
+      doc.text("Resumen de Inversión", 10, 10);
+      doc.text(`Capital Inicial: $${document.getElementById('capitalInicial').value}`, 10, 20);
+      doc.text(`Tasa Anual: ${document.getElementById('tasa').value}%`, 10, 30);
+      doc.text(`Plazo: ${document.getElementById('plazo').value} meses`, 10, 40);
+      doc.text(`Aportación mensual: $${document.getElementById('aportacion').value}`, 10, 50);
+      
+      // Tabla
+      doc.autoTable({
+        html: '#tablaResultados',
+        startY: 60,
+        theme: 'grid'
+      });
+
+      // Gráfica
+      const canvas = document.getElementById("grafica");
+      const imgData = canvas.toDataURL("image/png");
+      doc.addImage(imgData, 'PNG', 10, doc.lastAutoTable.finalY + 10, 180, 100);
+
+      // Descargar
+      doc.save('inversion.pdf');
+    }
+
+    function descargarCSV() {
+      // Agregar función para exportar a Excel
     }
   </script>
 </body>

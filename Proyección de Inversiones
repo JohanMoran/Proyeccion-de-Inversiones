@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Calculadora de Inversión</title>
+  <title>Calculadora de inversión</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -19,14 +20,12 @@
       --verde-hover: #218838;
       --texto-grande: 16px;
     }
-
     body.dark {
       --fondo-claro: #121212;
       --texto-claro: #e0e0e0;
       --tabla-head: #1f1f1f;
       --boton-texto: #fff;
     }
-
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: var(--fondo-claro);
@@ -36,7 +35,6 @@
       margin: auto;
       transition: background-color 0.4s, color 0.4s;
     }
-
     #portada {
       background-color: var(--portada);
       color: #fff;
@@ -45,14 +43,12 @@
       border-radius: 8px;
       margin-bottom: 20px;
     }
-
     label {
       margin-top: 15px;
       display: block;
       font-weight: 600;
       font-size: var(--texto-grande);
     }
-
     input {
       padding: 10px;
       border: 1px solid #ccc;
@@ -62,24 +58,20 @@
       background-color: #fff;
       transition: background-color 0.3s, color 0.3s;
     }
-
     body.dark input {
       background-color: #2a2a2a;
       color: #e0e0e0;
       border: 1px solid #555;
     }
-
     .input-container {
       display: flex;
       align-items: center;
       gap: 10px;
       margin-top: 5px;
     }
-
     .input-container input {
       width: 20%;
     }
-
     .input-container span {
       font-weight: normal;
       font-size: 14px;
@@ -90,7 +82,6 @@
       text-overflow: ellipsis;
       width: 80%;
     }
-
     button {
       padding: 10px 16px;
       background-color: var(--primario);
@@ -102,67 +93,55 @@
       font-weight: 600;
       transition: background-color 0.3s, transform 0.2s;
     }
-
     .boton-calcular {
       background-color: var(--verde);
       width: 160px;
     }
-
     .boton-calcular:hover {
       background-color: var(--verde-hover);
     }
-
     .result {
       margin-top: 20px;
       font-size: 16px;
       font-weight: bold;
       color: var(--primario);
     }
-
     table {
       width: 100%;
       margin-top: 20px;
       border-collapse: collapse;
       background-color: #fff;
     }
-
     th, td {
       padding: 8px;
       text-align: center;
       border: 1px solid #ccc;
     }
-
     th {
       background-color: var(--tabla-head);
     }
-
     body.dark table {
       background-color: #1f1f1f;
       color: #e0e0e0;
     }
-
     body.dark th {
       background-color: #2c2c2c;
     }
-
     canvas {
       margin-top: 30px;
       background-color: #fff;
       border-radius: 8px;
       padding: 10px;
     }
-
     body.dark canvas {
       background-color: #1f1f1f;
     }
-
     .buttons {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 15px;
     }
-
     .dark-mode-btn {
       position: fixed;
       bottom: 20px;
@@ -170,7 +149,6 @@
       z-index: 999;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
-
     .leyenda {
       font-size: 14px;
       font-style: italic;
@@ -178,7 +156,6 @@
       margin-bottom: -5px;
       color: #555;
     }
-
     body.dark .leyenda {
       color: #aaa;
     }
@@ -189,7 +166,6 @@
     <h1>Calculadora de Inversión</h1>
     <p>Optimiza tu inversión y alcanza tus objetivos financieros con nuestra herramienta.</p>
   </div>
-
   <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
 
   <label>MONTO INICIAL:</label>
@@ -200,13 +176,13 @@
 
   <label>Tasa Anual (%):</label>
   <div class="input-container">
-    <input type="number" id="tasa" />
-    <span>Tasa de Interés anual, inversionistas conservador (renta fija) 10% - 15%.</span>
+    <input type="number" id="tasa" step="0.01" />
+    <span>Tasa de Interés anual, inversionistas conservadores (renta fija) 10% - 15%.</span>
   </div>
 
   <label>Plazo (en meses):</label>
   <div class="input-container">
-    <input type="number" id="plazo" />
+    <input type="number" id="plazo" min="1" />
     <span>¿Cuántos años vas a realizar la inversión? ¿Cuál es tu horizonte de inversión?</span>
   </div>
 
@@ -229,7 +205,7 @@
   </div>
 
   <div class="leyenda">
-    Calculadora de Interés Compuesto con Amortización mensual. Herramienta para uso estrictamente con fines informativos y educativos.
+    Calculadora de Interés Compuesto con Aportación mensual. Herramienta para uso estrictamente con fines informativos y educativos.
   </div>
 
   <div class="buttons">
@@ -240,7 +216,6 @@
 
   <div class="result" id="resultado"></div>
   <div class="result" id="resumenFinal"></div>
-
   <canvas id="grafica" height="120"></canvas>
 
   <table id="tablaResultados" style="display:none">
@@ -259,9 +234,13 @@
   <script>
     let datosGrafica = [];
     let totalAportaciones = 0, totalInteres = 0, capital = 0;
+    let chart = null; // Para manejar la gráfica y actualizarla
 
     function toggleDarkMode() {
       document.body.classList.toggle("dark");
+      if (chart) {
+        chart.update(); // Actualiza la gráfica al cambiar modo
+      }
     }
 
     function calcular() {
@@ -269,23 +248,25 @@
       const tasa = parseFloat(document.getElementById('tasa').value) || 0;
       const plazo = parseInt(document.getElementById('plazo').value) || 0;
       const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
-      const inflacion = parseFloat(document.getElementById('inflacion')?.value) || 0;
       const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
       const fechaInicio = new Date(document.getElementById('fechaInicio').value);
+
+      if (plazo <= 0 || tasa <= 0) {
+        alert("Por favor, ingresa un plazo y una tasa válidos.");
+        return;
+      }
 
       capital = capitalInicial;
       totalInteres = 0;
       totalAportaciones = 0;
-      let tasaMensual = tasa / 12 / 100;
-      let inflacionMensual = inflacion / 12 / 100;
-
+      const tasaMensual = tasa / 12 / 100;
       const tabla = document.querySelector('#tablaResultados tbody');
       tabla.innerHTML = '';
       datosGrafica = [];
-
       let meses = plazo;
       let cumpleObjetivo = false;
 
+      // Calcular si hay objetivo
       if (capitalObjetivo) {
         for (let i = 1; i <= 600; i++) {
           const interes = capital * tasaMensual;
@@ -296,16 +277,15 @@
             break;
           }
         }
-        capital = capitalInicial;
+        capital = capitalInicial; // Reset para cálculo real
       }
 
+      // Generar tabla
       for (let i = 1; i <= meses; i++) {
         const interes = capital * tasaMensual;
         totalInteres += interes;
         capital += interes + aportacion;
         totalAportaciones += aportacion;
-
-        let capitalAjustado = capital / Math.pow(1 + inflacionMensual, i);
 
         const fecha = new Date(fechaInicio);
         fecha.setMonth(fecha.getMonth() + i);
@@ -323,6 +303,7 @@
         datosGrafica.push({ mes: i, total: capital });
       }
 
+      // Mostrar resultados
       document.getElementById('resultado').innerHTML = `
         <strong>Resumen de Inversión:</strong><br>
         Capital inicial: $${capitalInicial.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
@@ -333,22 +314,59 @@
         Total interés generado: $${totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
         <strong>Total al final del plazo: $${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</strong>
       `;
+
+      if (cumpleObjetivo) {
+        document.getElementById('resumenFinal').innerHTML = `
+          🎉 <strong>¡Objetivo alcanzado en ${meses} meses!</strong>
+        `;
+      }
+
       generarGrafico();
     }
 
     function generarGrafico() {
-      let ctx = document.getElementById('grafica').getContext('2d');
-      new Chart(ctx, {
+      const ctx = document.getElementById('grafica').getContext('2d');
+      
+      // Destruir gráfica anterior si existe
+      if (chart) {
+        chart.destroy();
+      }
+
+      chart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels: datosGrafica.map(d => d.mes),
+          labels: datosGrafica.map(d => `Mes ${d.mes}`),
           datasets: [{
-            label: 'Total acumulado',
+            label: 'Total acumulado (MXN)',
             data: datosGrafica.map(d => d.total),
-            borderColor: 'rgb(75, 192, 192)',
-            fill: false,
-            tension: 0.1
+            borderColor: '#2b6777',
+            backgroundColor: 'rgba(43, 103, 119, 0.1)',
+            fill: true,
+            tension: 0.3
           }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              callbacks: {
+                label: (context) => {
+                  return ` $${context.raw.toLocaleString('es-MX')} MXN`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                callback: (value) => `$${value.toLocaleString('es-MX')}`
+              }
+            }
+          }
         }
       });
     }
@@ -356,33 +374,57 @@
     function descargarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-
-      // Resumen de inversión
-      doc.setFontSize(14);
-      doc.text("Resumen de Inversión", 10, 10);
-      doc.text(`Capital Inicial: $${document.getElementById('capitalInicial').value}`, 10, 20);
-      doc.text(`Tasa Anual: ${document.getElementById('tasa').value}%`, 10, 30);
-      doc.text(`Plazo: ${document.getElementById('plazo').value} meses`, 10, 40);
-      doc.text(`Aportación mensual: $${document.getElementById('aportacion').value}`, 10, 50);
-
+      
+      // Título
+      doc.setFontSize(18);
+      doc.setTextColor(43, 103, 119);
+      doc.text("Resumen de Inversión", 10, 15);
+      
+      // Datos básicos
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.text(`Capital inicial: $${document.getElementById('capitalInicial').value}`, 10, 25);
+      doc.text(`Tasa anual: ${document.getElementById('tasa').value}%`, 10, 35);
+      doc.text(`Plazo: ${document.getElementById('plazo').value} meses`, 10, 45);
+      
       // Tabla
       doc.autoTable({
         html: '#tablaResultados',
-        startY: 60,
-        theme: 'grid'
+        startY: 55,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [43, 103, 119],
+          textColor: 255
+        }
       });
-
-      // Gráfica
-      const canvas = document.getElementById("grafica");
-      const imgData = canvas.toDataURL("image/png");
+      
+      // Gráfico (convertir canvas a imagen)
+      const canvas = document.getElementById('grafica');
+      const imgData = canvas.toDataURL('image/png');
       doc.addImage(imgData, 'PNG', 10, doc.lastAutoTable.finalY + 10, 180, 100);
-
-      // Descargar
+      
       doc.save('inversion.pdf');
     }
 
     function descargarCSV() {
-      // Agregar función para exportar a Excel
+      if (datosGrafica.length === 0) {
+        alert("Primero calcula una inversión.");
+        return;
+      }
+      
+      let csv = "Mes,Fecha,Aportación,Interés,Total\n";
+      const rows = document.querySelectorAll('#tablaResultados tbody tr');
+      
+      rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        csv += `"${cells[0].textContent}","${cells[1].textContent}","${cells[2].textContent}","${cells[3].textContent}","${cells[4].textContent}"\n`;
+      });
+      
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'inversion.csv';
+      link.click();
     }
   </script>
 </body>

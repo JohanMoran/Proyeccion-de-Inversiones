@@ -1,4 +1,4 @@
-  <html lang="es">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -63,7 +63,7 @@
     input {
       padding: 10px;
       border: 1px solid #ccc;
-      width: 100%;
+      width: 80%;
       border-radius: 5px;
       margin-top: 5px;
       background-color: #fff;
@@ -74,6 +74,25 @@
       background-color: #2a2a2a;
       color: #e0e0e0;
       border: 1px solid #555;
+    }
+
+    .input-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 5px;
+    }
+
+    .input-container input {
+      width: 70%;
+    }
+
+    .input-container span {
+      font-weight: normal;
+      font-size: 13px;
+      color: var(--texto-claro);
+      display: inline-block;
+      max-width: 30%;
     }
 
     button {
@@ -158,17 +177,13 @@
     <img id="imagen-portada" src="ruta/de/tu/imagen.jpg" alt="Imagen de portada">
   </div>
 
-  <div id="portada"></div>
-
   <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
 
-  <label>
-    Monto Inicial:
-    <span style="font-weight: normal; font-size: 13px; margin-left: 10px;">
-      ¿Con qué cantidad cuentas en este momento? ¿Con cuánto empezarás tu inversión?
-    </span>
-  </label>
-  <input type="number" id="capitalInicial" />
+  <label>MONTO INICIAL:</label>
+  <div class="input-container">
+    <input type="number" id="capitalInicial" />
+    <span>¿Con qué cantidad cuentas en este momento? ¿Con cuánto empezarás tu inversión?</span>
+  </div>
 
   <label>Tasa Anual (%):</label>
   <input type="number" id="tasa" />
@@ -355,24 +370,17 @@
       const headers = [["Mes", "Fecha", "Aportación", "Interés", "Total"]];
       const filas = [];
       document.querySelectorAll('#tablaResultados tbody tr').forEach(row => {
-        const celdas = Array.from(row.querySelectorAll('td')).map(td => td.innerText);
+        const celdas = Array.from(row.children).map(cell => cell.innerText);
         filas.push(celdas);
       });
 
       doc.autoTable({
+        startY: startY,
         head: headers,
         body: filas,
-        startY: startY,
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [43, 103, 119] },
-        margin: { left: 14, right: 14 }
+        theme: 'grid',
+        columnStyles: { 0: { halign: 'center' }, 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' } }
       });
-
-      const finalY = doc.previousAutoTable.finalY + 10;
-      const canvas = document.getElementById('grafica');
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      doc.text("Gráfico de Crecimiento de la Inversión", 14, finalY);
-      doc.addImage(imgData, 'PNG', 14, finalY + 5, 180, 80);
 
       doc.save("resumen-inversion.pdf");
     }

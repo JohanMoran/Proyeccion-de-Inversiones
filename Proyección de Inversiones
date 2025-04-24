@@ -346,29 +346,42 @@
       });
     }
 
-    function descargarPDF() {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+function descargarPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
 
-      doc.setFontSize(14);
-      doc.text("Resumen de Inversión", 10, 10);
-      doc.text(`Capital Inicial: $${document.getElementById('capitalInicial').value}`, 10, 20);
-      doc.text(`Tasa Anual: ${document.getElementById('tasa').value}%`, 10, 30);
-      doc.text(`Plazo: ${document.getElementById('plazo').value} meses`, 10, 40);
-      doc.text(`Aportación mensual: $${document.getElementById('aportacion').value}`, 10, 50);
+  // Datos calculados
+  const capitalInicial = document.getElementById('capitalInicial').value;
+  const tasa = document.getElementById('tasa').value;
+  const plazo = document.getElementById('plazo').value;
+  const aportacion = document.getElementById('aportacion').value;
+  const totalAportado = totalAportaciones.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }).replace('MXN', '').trim();
+  const totalInteres = totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }).replace('MXN', '').trim();
+  const totalFinal = capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }).replace('MXN', '').trim();
 
-      doc.autoTable({
-        html: '#tablaResultados',
-        startY: 60,
-        theme: 'grid'
-      });
+  doc.setFontSize(14);
+  doc.text("Resumen de Inversión", 10, 10);
+  doc.text(`Capital Inicial: $${capitalInicial}`, 10, 20);
+  doc.text(`Tasa Anual: ${tasa}%`, 10, 30);
+  doc.text(`Plazo: ${plazo} meses`, 10, 40);
+  doc.text(`Aportación mensual: $${aportacion}`, 10, 50);
+  doc.text(`Total aportado: $${totalAportado}`, 10, 60);
+  doc.text(`Total interés generado: $${totalInteres}`, 10, 70);
+  doc.text(`Total al final del plazo: $${totalFinal}`, 10, 80);
 
-      const canvas = document.getElementById("grafica");
-      const imgData = canvas.toDataURL("image/png");
-      doc.addImage(imgData, 'PNG', 10, doc.lastAutoTable.finalY + 10, 180, 100);
+  doc.autoTable({
+    html: '#tablaResultados',
+    startY: 90,
+    theme: 'grid'
+  });
 
-      doc.save('inversion.pdf');
-    }
+  const canvas = document.getElementById("grafica");
+  const imgData = canvas.toDataURL("image/png");
+  doc.addImage(imgData, 'PNG', 10, doc.lastAutoTable.finalY + 10, 180, 100);
+
+  doc.save('inversion.pdf');
+}
+
 
     function descargarCSV() {
       alert("Función para descargar Excel próximamente.");

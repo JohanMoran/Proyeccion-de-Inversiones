@@ -243,7 +243,7 @@
 
   <div class="result" id="resultado"></div>
   <div class="result" id="resumenFinal"></div>
-  <canvas id="grafica" height="120"></canvas>
+  <canvas id="grafica" height="250"></canvas>
 
   <div class="tabla-titulo" id="tablaTitulo">Tabla Amortizada de Inversión</div>
   <div class="tabla-container">

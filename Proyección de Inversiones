@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -268,122 +269,136 @@
       const plazo = parseInt(document.getElementById('plazo').value) || 0;
       const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
       const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
-      const fechaInicio = new Date(document.getElementById('fechaInicio').value);
 
-      capital = capitalInicial;
-      totalInteres = 0;
-      totalAportaciones = 0;
-      let tasaMensual = tasa / 12 / 100;
-
-      const tabla = document.querySelector('#tablaResultados tbody');
-      tabla.innerHTML = '';
-      datosGrafica = [];
-
-      let meses = plazo;
-      if (capitalObjetivo) {
-        for (let i = 1; i <= 600; i++) {
-          const interes = capital * tasaMensual;
-          capital += interes + aportacion;
-          if (capital >= capitalObjetivo) {
-            meses = i;
-            break;
-          }
-        }
-        capital = capitalInicial;
+      if (!capitalInicial || !tasa || !plazo || !aportacion) {
+        alert("Por favor, completa todos los campos");
+        return;
       }
 
-      for (let i = 1; i <= meses; i++) {
-        const interes = capital * tasaMensual;
-        totalInteres += interes;
-        capital += interes + aportacion;
+      const tasaMensual = (tasa / 100) / 12;
+      let totalInteresAcumulado = 0;
+      let saldo = capitalInicial;
+      const resultados = [];
+
+      for (let mes = 1; mes <= plazo; mes++) {
+        const interesMes = saldo * tasaMensual;
+        saldo += aportacion + interesMes;
+        totalInteresAcumulado += interesMes;
         totalAportaciones += aportacion;
 
-        const fecha = new Date(fechaInicio);
-        fecha.setMonth(fecha.getMonth() + i);
-
-        tabla.innerHTML += `
-          <tr>
-            <td>${i}</td>
-            <td>${fecha.toLocaleDateString()}</td>
-            <td>$${aportacion.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
-            <td>$${interes.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
-            <td>$${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</td>
-          </tr>
-        `;
-
-        datosGrafica.push({ mes: i, total: capital });
+        resultados.push({
+          mes,
+          fecha: new Date(new Date().setMonth(new Date().getMonth() + mes)),
+          aportacion: aportacion,
+          interes: interesMes,
+          total: saldo
+        });
       }
 
-      document.getElementById('resultado').innerHTML = `
-        <strong>Resumen de Inversión:</strong><br>
-        Capital inicial: $${capitalInicial.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
-        Tasa de interés anual: ${tasa}%<br>
-        Plazo: ${meses} meses<br>
-        Aportación mensual: $${aportacion.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
-        Total aportado: $${totalAportaciones.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
-        Total interés generado: $${totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}<br>
-        <strong>Total al final del plazo: $${capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' })}</strong>
-      `;
+      capital = saldo;
 
-      generarGrafico();
+      // Actualiza tabla
+      let tablaHTML = '';
+      resultados.forEach(result => {
+        tablaHTML += `
+          <tr>
+            <td>${result.mes}</td>
+            <td>${result.fecha.toLocaleDateString()}</td>
+            <td>$${result.aportacion.toLocaleString('es-MX')}</td>
+            <td>$${result.interes.toLocaleString('es-MX')}</td>
+            <td>$${result.total.toLocaleString('es-MX')}</td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('tablaResultados').querySelector('tbody').innerHTML = tablaHTML;
+
+      // Mostrar gráfico
+      datosGrafica = resultados.map(result => result.total);
+      crearGrafica();
+
+      // Mostrar resultado final
+      const resultadoFinal = document.getElementById('resultado');
+      resultadoFinal.innerHTML = `
+        <p><strong>Capital inicial:</strong> $${capitalInicial.toLocaleString('es-MX')}</p>
+        <p><strong>Tasa anual:</strong> ${tasa}%</p>
+        <p><strong>Plazo:</strong> ${plazo} meses</p>
+        <p><strong>Aportación mensual:</strong> $${aportacion.toLocaleString('es-MX')}</p>
+        <p><strong>Total aportado:</strong> $${totalAportaciones.toLocaleString('es-MX')}</p>
+        <p><strong>Total interés generado:</strong> $${totalInteresAcumulado.toLocaleString('es-MX')}</p>
+        <p><strong>Total al final del plazo:</strong> $${capital.toLocaleString('es-MX')}</p>
+      `;
     }
 
-    function generarGrafico() {
+    function crearGrafica() {
       const ctx = document.getElementById('grafica').getContext('2d');
       new Chart(ctx, {
         type: 'line',
         data: {
-          labels: datosGrafica.map(d => d.mes),
+          labels: Array.from({ length: datosGrafica.length }, (_, i) => i + 1),
           datasets: [{
-            label: 'Total acumulado',
-            data: datosGrafica.map(d => d.total),
-            borderColor: 'rgb(75, 192, 192)',
-            fill: false,
-            tension: 0.1
+            label: 'Valor acumulado',
+            data: datosGrafica,
+            borderColor: '#28a745',
+            backgroundColor: 'rgba(40, 167, 69, 0.2)',
+            fill: true,
+            tension: 0.4
           }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Meses'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Monto en pesos'
+              }
+            }
+          }
         }
       });
     }
 
-function descargarPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+    function descargarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
 
-  // Datos calculados
-  const capitalInicial = document.getElementById('capitalInicial').value;
-  const tasa = document.getElementById('tasa').value;
-  const plazo = document.getElementById('plazo').value;
-  const aportacion = document.getElementById('aportacion').value;
-  const totalAportado = totalAportaciones.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }).replace('MXN', '').trim();
-  const totalInteres = totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }).replace('MXN', '').trim();
-  const totalFinal = capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }).replace('MXN', '').trim();
+      // Datos calculados
+      const capitalInicial = document.getElementById('capitalInicial').value;
+      const tasa = document.getElementById('tasa').value;
+      const plazo = document.getElementById('plazo').value;
+      const aportacion = document.getElementById('aportacion').value;
+      const totalAportado = totalAportaciones.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }).replace('MXN', '').trim();
+      const totalInteres = totalInteres.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }).replace('MXN', '').trim();
+      const totalFinal = capital.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' }).replace('MXN', '').trim();
 
-  doc.setFontSize(14);
-  doc.text("Resumen de Inversión", 10, 10);
-  doc.text(`Capital Inicial: $${capitalInicial}`, 10, 20);
-  doc.text(`Tasa Anual: ${tasa}%`, 10, 30);
-  doc.text(`Plazo: ${plazo} meses`, 10, 40);
-  doc.text(`Aportación mensual: $${aportacion}`, 10, 50);
-  doc.text(`Total aportado: $${totalAportado}`, 10, 60);
-  doc.text(`Total interés generado: $${totalInteres}`, 10, 70);
-  doc.text(`Total al final del plazo: $${totalFinal}`, 10, 80);
+      doc.setFontSize(14);
+      doc.text("Resumen de Inversión", 10, 10);
+      doc.text(`Capital Inicial: $${capitalInicial}`, 10, 20);
+      doc.text(`Tasa Anual: ${tasa}%`, 10, 30);
+      doc.text(`Plazo: ${plazo} meses`, 10, 40);
+      doc.text(`Aportación mensual: $${aportacion}`, 10, 50);
+      doc.text(`Total aportado: $${totalAportado}`, 10, 60);
+      doc.text(`Total interés generado: $${totalInteres}`, 10, 70);
+      doc.text(`Total al final del plazo: $${totalFinal}`, 10, 80);
 
-  doc.autoTable({
-    html: '#tablaResultados',
-    startY: 90,
-    theme: 'grid'
-  });
+      doc.autoTable({
+        html: '#tablaResultados',
+        startY: 90,
+        theme: 'grid'
+      });
 
-  const canvas = document.getElementById("grafica");
-  const imgData = canvas.toDataURL("image/png");
-  doc.addImage(imgData, 'PNG', 10, doc.lastAutoTable.finalY + 10, 180, 100);
+      const canvas = document.getElementById("grafica");
+      const imgData = canvas.toDataURL("image/png");
+      doc.addImage(imgData, 'PNG', 10, doc.lastAutoTable.finalY + 10, 180, 100);
 
-  doc.save('inversion.pdf');
-}
-
-
-    function descargarCSV() {
-      alert("Función para descargar Excel próximamente.");
+      doc.save('inversion.pdf');
     }
   </script>
 </body>

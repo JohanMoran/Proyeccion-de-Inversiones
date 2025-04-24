@@ -63,7 +63,7 @@
     input {
       padding: 10px;
       border: 1px solid #ccc;
-      width: 80%;
+      width: 100%;
       border-radius: 5px;
       margin-top: 5px;
       background-color: #fff;
@@ -84,7 +84,7 @@
     }
 
     .input-container input {
-      width: 70%;
+      width: 40%;
     }
 
     .input-container span {
@@ -92,7 +92,10 @@
       font-size: 13px;
       color: var(--texto-claro);
       display: inline-block;
-      max-width: 30%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 55%; /* Esto asegura que el texto no se ajuste */
     }
 
     button {
@@ -354,35 +357,12 @@
       URL.revokeObjectURL(url);
     }
 
-    async function descargarPDF() {
+    function descargarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
-
-      doc.setFontSize(16);
-      doc.text("Resumen de Inversión", 14, 20);
-
-      doc.setFontSize(12);
-      doc.text("Total de aportaciones: $" + totalAportaciones.toFixed(2), 14, 30);
-      doc.text("Intereses generados: $" + totalInteres.toFixed(2), 14, 38);
-      doc.text("Monto final: $" + capital.toFixed(2), 14, 46);
-
-      const startY = 56;
-      const headers = [["Mes", "Fecha", "Aportación", "Interés", "Total"]];
-      const filas = [];
-      document.querySelectorAll('#tablaResultados tbody tr').forEach(row => {
-        const celdas = Array.from(row.children).map(cell => cell.innerText);
-        filas.push(celdas);
-      });
-
-      doc.autoTable({
-        startY: startY,
-        head: headers,
-        body: filas,
-        theme: 'grid',
-        columnStyles: { 0: { halign: 'center' }, 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' } }
-      });
-
-      doc.save("resumen-inversion.pdf");
+      doc.text('Resumen de Inversión', 14, 20);
+      doc.autoTable({ html: '#tablaResultados', startY: 30 });
+      doc.save('resultado-inversion.pdf');
     }
   </script>
 </body>

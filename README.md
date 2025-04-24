@@ -196,13 +196,10 @@
 </head>
 <body>
   <div id="portada">
-    <!-- Reemplaza esta línea con tu imagen -->
-    <img src="ROBPAIERO_TUASESORDECONFIANZA.png" alt="Calculadora de Inversión">
-    <!-- Texto original comentado:
-    <h1>Calculadora de Inversión</h1>
-    <p>Optimiza tu inversión y alcanza tus objetivos financieros con nuestra herramienta.</p>
-    -->
-  </div>
+  <img src="https://raw.githubusercontent.com/JohanMoran/Proyeccion-de-Inversiones/main/ROBPAIERO_TUASESORDECONFIANZA.PNG" 
+       alt="Calculadora de Inversión"
+       style="width: 100%; max-width: 900px; height: auto; border-radius: 8px;">
+</div>
   <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
 
   <label>MONTO INICIAL:</label>

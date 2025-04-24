@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -25,13 +24,12 @@
       --texto-claro: #e0e0e0;
       --tabla-head: #1f1f1f;
       --boton-texto: #fff;
-      --portada: #1a2035;
     }
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: var(--fondo-claro);
       color: var(--texto-claro);
-      padding: 15px;
+      padding: 20px;
       max-width: 900px;
       margin: auto;
       transition: background-color 0.4s, color 0.4s;
@@ -66,30 +64,25 @@
     }
     .input-container {
       display: flex;
-      flex-direction: column;
-      gap: 5px;
+      align-items: center;
+      gap: 10px;
       margin-top: 5px;
     }
-    @media (min-width: 768px) {
-      .input-container {
-        flex-direction: row;
-        align-items: center;
-      }
-      .input-container input {
-        width: 30%;
-      }
-      .input-container span {
-        width: 70%;
-      }
+    .input-container input {
+      width: 20%;
     }
     .input-container span {
       font-weight: normal;
       font-size: 14px;
       color: var(--texto-claro);
-      line-height: 1.4;
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 80%;
     }
     button {
-      padding: 12px 18px;
+      padding: 10px 16px;
       background-color: var(--primario);
       color: var(--boton-texto);
       border: none;
@@ -97,7 +90,7 @@
       cursor: pointer;
       font-size: 14px;
       font-weight: 600;
-      transition: all 0.3s;
+      transition: background-color 0.3s, transform 0.2s;
     }
     .boton-calcular {
       background-color: var(--verde);
@@ -105,119 +98,92 @@
     }
     .boton-calcular:hover {
       background-color: var(--verde-hover);
-      transform: translateY(-2px);
     }
     .result {
       margin-top: 20px;
       font-size: 16px;
       font-weight: bold;
       color: var(--primario);
-      line-height: 1.6;
-    }
-    .tabla-container {
-      overflow-x: auto;
-      margin-top: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-      background-color: var(--fondo-claro);
-      transition: all 0.4s;
-    }
-    body.dark .tabla-container {
-      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
     }
     #tablaResultados {
       width: 100%;
+      margin-top: 20px;
       border-collapse: collapse;
-      background-color: var(--fondo-claro);
-      transition: all 0.4s;
+      background-color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: none; /* Ocultar inicialmente */
     }
     #tablaResultados th, 
     #tablaResultados td {
-      padding: 12px 10px;
+      padding: 12px 8px;
       text-align: center;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #eee;
+      white-space: nowrap;
     }
     #tablaResultados th {
       background-color: var(--primario);
       color: white;
       position: sticky;
       top: 0;
-      font-weight: 600;
+    }
+    body.dark #tablaResultados {
+      background-color: #1f1f1f;
+      color: #e0e0e0;
     }
     body.dark #tablaResultados th {
       background-color: #2c2c2c;
     }
     body.dark #tablaResultados td {
       border-color: #444;
-      background-color: #1f1f1f;
     }
     canvas {
       margin-top: 30px;
-      background-color: var(--fondo-claro);
+      background-color: #fff;
       border-radius: 8px;
-      padding: 15px;
+      padding: 10px;
       width: 100% !important;
-      box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-      transition: all 0.4s;
     }
     body.dark canvas {
-      box-shadow: 0 2px 15px rgba(0,0,0,0.3);
+      background-color: #1f1f1f;
     }
     .buttons {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 20px;
+      margin-top: 15px;
     }
     .dark-mode-btn {
       position: fixed;
       bottom: 20px;
       right: 20px;
       z-index: 999;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
     .leyenda {
       font-size: 14px;
       font-style: italic;
       margin-top: 20px;
       margin-bottom: -5px;
-      color: #666;
-      text-align: center;
+      color: #555;
     }
     body.dark .leyenda {
       color: #aaa;
     }
+    .tabla-container {
+      overflow-x: auto;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
     .tabla-titulo {
       background-color: var(--primario);
       color: white;
-      padding: 15px;
+      padding: 12px;
       border-radius: 8px 8px 0 0;
       font-weight: bold;
-      text-align: center;
-      display: none;
-      margin-top: 30px;
+      display: none; /* Ocultar inicialmente */
     }
     body.dark .tabla-titulo {
-      background-color: #2c2c2c;
-    }
-    .grafica-titulo {
-      background-color: var(--primario);
-      color: white;
-      padding: 15px;
-      border-radius: 8px 8px 0 0;
-      font-weight: bold;
-      text-align: center;
-      margin-top: 30px;
-      display: none;
-    }
-    body.dark .grafica-titulo {
       background-color: #2c2c2c;
     }
   </style>
@@ -227,7 +193,7 @@
     <h1>Calculadora de Inversión</h1>
     <p>Optimiza tu inversión y alcanza tus objetivos financieros con nuestra herramienta.</p>
   </div>
-  <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙</button>
+  <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
 
   <label>MONTO INICIAL:</label>
   <div class="input-container">
@@ -277,9 +243,7 @@
 
   <div class="result" id="resultado"></div>
   <div class="result" id="resumenFinal"></div>
-
-  <div class="grafica-titulo" id="graficaTitulo">Progresión de tu Inversión</div>
-  <canvas id="grafica" height="120"></canvas>
+  <canvas id="grafica" height="300"></canvas>
 
   <div class="tabla-titulo" id="tablaTitulo">Tabla Amortizada de Inversión</div>
   <div class="tabla-container">
@@ -304,24 +268,7 @@
 
     function toggleDarkMode() {
       document.body.classList.toggle("dark");
-      updateChartColors();
       if (chart) {
-        chart.update();
-      }
-    }
-
-    function updateChartColors() {
-      const isDarkMode = document.body.classList.contains('dark');
-      const bgColor = isDarkMode ? '#1f1f1f' : '#fff';
-      const textColor = isDarkMode ? '#e0e0e0' : '#666';
-      const gridColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-      
-      if (chart) {
-        chart.options.scales.y.grid.color = gridColor;
-        chart.options.scales.x.grid.color = gridColor;
-        chart.options.scales.y.ticks.color = textColor;
-        chart.options.scales.x.ticks.color = textColor;
-        chart.options.plugins.legend.labels.color = textColor;
         chart.update();
       }
     }
@@ -386,28 +333,24 @@
 
       document.getElementById('resultado').innerHTML = `
         <strong>Resumen de Inversión:</strong><br>
-        • Capital inicial: ${formatCurrency(capitalInicial)}<br>
-        • Tasa anual: ${tasa}%<br>
-        • Plazo: ${meses} meses (${(meses/12).toFixed(1)} años)<br>
-        • Aportación mensual: ${formatCurrency(aportacion)}<br>
-        <br>
-        <strong>Totales:</strong><br>
-        • Total aportado: ${formatCurrency(totalAportaciones)}<br>
-        • Interés generado: ${formatCurrency(totalInteres)}<br>
-        <br>
-        <strong style="font-size: 1.1em;">➔ Total final: ${formatCurrency(capital)}</strong>
+        Capital inicial: ${formatCurrency(capitalInicial)}<br>
+        Tasa de interés anual: ${tasa}%<br>
+        Plazo: ${meses} meses<br>
+        Aportación mensual: ${formatCurrency(aportacion)}<br>
+        Total aportado: ${formatCurrency(totalAportaciones)}<br>
+        Total interés generado: ${formatCurrency(totalInteres)}<br>
+        <strong>Total al final del plazo: ${formatCurrency(capital)}</strong>
       `;
 
       if (cumpleObjetivo) {
         document.getElementById('resumenFinal').innerHTML = `
-          🎉 <strong>¡Objetivo alcanzado en ${meses} meses (${(meses/12).toFixed(1)} años)!</strong>
+          🎉 <strong>¡Objetivo alcanzado en ${meses} meses!</strong>
         `;
       }
 
-      // Mostrar elementos ocultos
+      // Mostrar tabla y título solo después de calcular
       document.getElementById('tablaResultados').style.display = "table";
       document.getElementById('tablaTitulo').style.display = "block";
-      document.getElementById('graficaTitulo').style.display = "block";
 
       generarGrafico();
     }
@@ -423,7 +366,6 @@
 
     function generarGrafico() {
       const ctx = document.getElementById('grafica').getContext('2d');
-      const isDarkMode = document.body.classList.contains('dark');
       
       if (chart) {
         chart.destroy();
@@ -437,34 +379,18 @@
             label: 'Total acumulado (MXN)',
             data: datosGrafica.map(d => d.total),
             borderColor: '#2b6777',
-            backgroundColor: isDarkMode ? 'rgba(43, 103, 119, 0.2)' : 'rgba(43, 103, 119, 0.1)',
+            backgroundColor: 'rgba(43, 103, 119, 0.1)',
             fill: true,
-            tension: 0.3,
-            borderWidth: 2,
-            pointRadius: 3,
-            pointBackgroundColor: '#fff',
-            pointBorderColor: '#2b6777'
+            tension: 0.3
           }]
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false,
           plugins: {
             legend: {
               position: 'top',
-              labels: {
-                color: isDarkMode ? '#e0e0e0' : '#666',
-                font: {
-                  weight: 'bold'
-                }
-              }
             },
             tooltip: {
-              backgroundColor: isDarkMode ? '#2c2c2c' : '#fff',
-              titleColor: isDarkMode ? '#fff' : '#333',
-              bodyColor: isDarkMode ? '#e0e0e0' : '#666',
-              borderColor: isDarkMode ? '#444' : '#ddd',
-              borderWidth: 1,
               callbacks: {
                 label: (context) => {
                   return ` ${formatCurrency(context.raw)}`;
@@ -475,20 +401,8 @@
           scales: {
             y: {
               beginAtZero: false,
-              grid: {
-                color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-              },
               ticks: {
-                color: isDarkMode ? '#e0e0e0' : '#666',
                 callback: (value) => formatCurrency(value)
-              }
-            },
-            x: {
-              grid: {
-                color: isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-              },
-              ticks: {
-                color: isDarkMode ? '#e0e0e0' : '#666'
               }
             }
           }
@@ -504,31 +418,20 @@
         format: 'a4'
       });
       
-      const isDarkMode = document.body.classList.contains('dark');
-      const textColor = isDarkMode ? '#e0e0e0' : '#333';
-      const bgColor = isDarkMode ? '#121212' : '#f4f6f8';
-      
-      // Configuración inicial
-      doc.setDocumentProperties({
-        title: 'Reporte de Inversión',
-        subject: 'Cálculo de interés compuesto',
-        creator: 'Calculadora de Inversión'
-      });
-      
-      // Logo o título
+      // Logo o título (opcional)
       doc.setFontSize(20);
       doc.setTextColor(43, 103, 119);
       doc.setFont('helvetica', 'bold');
-      doc.text("Reporte de Inversión", 105, 20, { align: 'center' });
+      doc.text("Reporte de Inversión", 105, 15, { align: 'center' });
       
       // Línea decorativa
       doc.setDrawColor(43, 103, 119);
       doc.setLineWidth(0.5);
-      doc.line(20, 25, 190, 25);
+      doc.line(20, 20, 190, 20);
       
-      // Información resumida
+      // Información resumida en cuadros
       doc.setFontSize(12);
-      doc.setTextColor(textColor);
+      doc.setTextColor(0, 0, 0);
       doc.setFont('helvetica', 'normal');
       
       const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
@@ -536,40 +439,36 @@
       const plazo = parseInt(document.getElementById('plazo').value) || 0;
       const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
       
-      // Sección de datos
-      doc.setFillColor(isDarkMode ? '#2c2c2c' : '#e6f2f5');
-      doc.rect(20, 30, 170, 30, 'F');
-      doc.text("Datos de la inversión", 25, 35);
-      doc.text(`• Capital inicial: ${formatCurrency(capitalInicial)}`, 25, 42);
-      doc.text(`• Tasa anual: ${tasa}% | Plazo: ${plazo} meses (${(plazo/12).toFixed(1)} años)`, 25, 49);
-      doc.text(`• Aportación mensual: ${formatCurrency(aportacion)}`, 25, 56);
+      // Primera sección: Datos clave
+      doc.setFillColor(240, 240, 240);
+      doc.rect(20, 25, 170, 30, 'F');
+      doc.text("Datos de la inversión", 25, 30);
+      doc.text(`Capital inicial: ${formatCurrency(capitalInicial)}`, 25, 37);
+      doc.text(`Tasa anual: ${tasa}% | Plazo: ${plazo} meses`, 25, 44);
+      doc.text(`Aportación mensual: ${formatCurrency(aportacion)}`, 25, 51);
       
-      // Sección de resultados
-      doc.setFillColor(isDarkMode ? '#2a3f2a' : '#e8f5e9');
-      doc.rect(20, 65, 170, 25, 'F');
-      doc.text("Resultados finales", 25, 70);
+      // Segunda sección: Resultados
+      doc.setFillColor(230, 245, 230);
+      doc.rect(20, 60, 170, 20, 'F');
+      doc.text("Resultados finales", 25, 65);
+      doc.text(`Total aportado: ${formatCurrency(totalAportaciones)}`, 25, 72);
+      doc.text(`Interés generado: ${formatCurrency(totalInteres)}`, 100, 72);
       doc.setFont('helvetica', 'bold');
-      doc.text(`➔ Total acumulado: ${formatCurrency(capital)}`, 25, 77);
+      doc.text(`Total acumulado: ${formatCurrency(capital)}`, 25, 79);
       doc.setFont('helvetica', 'normal');
-      doc.text(`• Total aportado: ${formatCurrency(totalAportaciones)}`, 25, 84);
-      doc.text(`• Interés generado: ${formatCurrency(totalInteres)}`, 25, 91);
       
-      // Tabla de amortización
+      // Tabla de amortización (autoTable)
       doc.autoTable({
         html: '#tablaResultados',
-        startY: 95,
-        theme: isDarkMode ? 'plain' : 'grid',
+        startY: 85,
+        theme: 'grid',
         headStyles: {
-          fillColor: isDarkMode ? '#2c2c2c' : '#2b6777',
+          fillColor: [43, 103, 119],
           textColor: 255,
-          fontSize: 10,
-          cellPadding: 5
+          fontSize: 10
         },
         bodyStyles: {
-          fontSize: 8,
-          textColor: textColor,
-          cellPadding: 4,
-          fillColor: isDarkMode ? '#1f1f1f' : bgColor
+          fontSize: 8
         },
         margin: { top: 10 },
         styles: {
@@ -585,7 +484,7 @@
         }
       });
       
-      // Gráfico
+      // Gráfico (convertir canvas a imagen)
       const canvas = document.getElementById('grafica');
       const imgData = canvas.toDataURL('image/png');
       doc.addImage(imgData, 'PNG', 20, doc.lastAutoTable.finalY + 10, 170, 80);
@@ -593,7 +492,7 @@
       // Pie de página
       doc.setFontSize(10);
       doc.setTextColor(100);
-      doc.text("Generado el " + new Date().toLocaleDateString('es-MX'), 105, 285, { align: 'center' });
+      doc.text("© Calculadora de Inversión - " + new Date().toLocaleDateString(), 105, 285, { align: 'center' });
       
       doc.save('reporte_inversion.pdf');
     }

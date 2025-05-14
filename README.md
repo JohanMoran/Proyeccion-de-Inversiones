@@ -2,7 +2,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <!-- Eliminado el título del head ya que usamos la imagen de portada -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -11,7 +10,7 @@
       --fondo-claro: #f4f6f8;
       --texto-claro: #333;
       --primario: #2b6777;
-      --primario2: #7d2b77; /* Color para segunda inversión */
+      --primario2: #7d2b77;
       --hover: #1b4d5b;
       --tabla-head: #ddeeee;
       --boton-texto: #fff;
@@ -31,7 +30,7 @@
       background-color: var(--fondo-claro);
       color: var(--texto-claro);
       padding: 20px;
-      max-width: 1200px; /* Aumentado para acomodar dos columnas */
+      max-width: 1200px;
       margin: auto;
       transition: background-color 0.4s, color 0.4s;
     }
@@ -52,29 +51,18 @@
       object-fit: cover;
       border-radius: 8px;
     }
-    .contenedor-comparacion {
+    .contenedor-principal {
       display: flex;
-      gap: 20px;
+      gap: 30px;
       flex-wrap: wrap;
     }
-    .inversion-container {
+    .formulario-container {
       flex: 1;
       min-width: 300px;
-      background: #fff;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    body.dark .inversion-container {
-      background: #1f1f1f;
-    }
-    .inversion-container h2 {
-      color: var(--primario);
-      text-align: center;
-      margin-top: 0;
-    }
-    .inversion-container:nth-child(2) h2 {
-      color: var(--primario2);
+    .resultados-container {
+      flex: 2;
+      min-width: 600px;
     }
     label {
       margin-top: 15px;
@@ -123,14 +111,15 @@
       font-size: 14px;
       font-weight: 600;
       transition: background-color 0.3s, transform 0.2s;
+      margin-top: 10px;
     }
     .boton-calcular {
       background-color: var(--verde);
-      width: 160px;
+      width: 100%;
     }
     .boton-comparar {
       background-color: var(--primario2);
-      width: 160px;
+      width: 100%;
     }
     .boton-calcular:hover {
       background-color: var(--verde-hover);
@@ -143,24 +132,21 @@
       font-size: 16px;
       font-weight: bold;
     }
-    .inversion-container:nth-child(1) .result {
+    #resultado1 {
       color: var(--primario);
     }
-    .inversion-container:nth-child(2) .result {
+    #resultado2 {
       color: var(--primario2);
     }
-    #tablaResultados, #tablaResultados2 {
+    #tablaResultados {
       width: 100%;
       margin-top: 20px;
       border-collapse: collapse;
       background-color: #fff;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      display: none;
     }
     #tablaResultados th, 
-    #tablaResultados td,
-    #tablaResultados2 th,
-    #tablaResultados2 td {
+    #tablaResultados td {
       padding: 12px 8px;
       text-align: center;
       border-bottom: 1px solid #eee;
@@ -172,25 +158,14 @@
       position: sticky;
       top: 0;
     }
-    #tablaResultados2 th {
-      background-color: var(--primario2);
-      color: white;
-      position: sticky;
-      top: 0;
-    }
-    body.dark #tablaResultados,
-    body.dark #tablaResultados2 {
+    body.dark #tablaResultados {
       background-color: #1f1f1f;
       color: #e0e0e0;
     }
     body.dark #tablaResultados th {
       background-color: #2c2c2c;
     }
-    body.dark #tablaResultados2 th {
-      background-color: #4c2c4c;
-    }
-    body.dark #tablaResultados td,
-    body.dark #tablaResultados2 td {
+    body.dark #tablaResultados td {
       border-color: #444;
     }
     canvas {
@@ -238,25 +213,14 @@
       padding: 12px;
       border-radius: 8px 8px 0 0;
       font-weight: bold;
-      display: none;
     }
-    .tabla-titulo2 {
-      background-color: var(--primario2);
-      color: white;
-      padding: 12px;
-      border-radius: 8px 8px 0 0;
-      font-weight: bold;
-      display: none;
+    .separador {
+      height: 2px;
+      background-color: #eee;
+      margin: 20px 0;
     }
-    body.dark .tabla-titulo {
-      background-color: #2c2c2c;
-    }
-    body.dark .tabla-titulo2 {
-      background-color: #4c2c4c;
-    }
-    .grafica-comparativa {
-      margin-top: 30px;
-      display: none;
+    body.dark .separador {
+      background-color: #444;
     }
   </style>
 </head>
@@ -268,57 +232,100 @@
   </div>
   <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
 
-  <div class="contenedor-comparacion">
-    <!-- PRIMERA INVERSIÓN -->
-    <div class="inversion-container">
-      <h2>Inversión Principal</h2>
+  <div class="contenedor-principal">
+    <!-- FORMULARIO -->
+    <div class="formulario-container">
+      <h2 style="color: var(--primario);">Inversión Principal</h2>
       
       <label>MONTO INICIAL:</label>
       <div class="input-container">
         <input type="number" id="capitalInicial" />
-        <span>¿Con qué cantidad cuentas en este momento?</span>
+        <span>Capital inicial para la inversión principal</span>
       </div>
 
       <label>Tasa Anual (%):</label>
       <div class="input-container">
         <input type="number" id="tasa" step="0.01" />
-        <span>Tasa de Interés anual (10% - 15% conservador)</span>
+        <span>Tasa de interés anual para la inversión principal</span>
       </div>
 
       <label>Plazo (en meses):</label>
       <div class="input-container">
         <input type="number" id="plazo" min="1" />
-        <span>¿Cuántos meses vas a invertir?</span>
+        <span>Plazo en meses para la inversión principal</span>
       </div>
 
       <label>Aportación mensual:</label>
       <div class="input-container">
         <input type="number" id="aportacion" />
-        <span>¿Cuánto puedes aportar cada mes?</span>
+        <span>Aportación mensual para la inversión principal</span>
       </div>
 
       <label>Fecha de inicio:</label>
       <div class="input-container">
         <input type="date" id="fechaInicio" />
-        <span>Fecha de inicio de la inversión</span>
+        <span>Fecha de inicio para la inversión principal</span>
       </div>
 
       <label>Capital objetivo (opcional):</label>
       <div class="input-container">
         <input type="number" id="capitalObjetivo" placeholder="Ej: 500000" />
-        <span>Monto que deseas alcanzar</span>
+        <span>Objetivo financiero para la inversión principal</span>
       </div>
 
-      <div class="buttons">
-        <button class="boton-calcular" onclick="calcular(1)">Calcular</button>
-        <button onclick="descargarCSV(1)">Descargar Excel</button>
-        <button onclick="descargarPDF(1)">Descargar PDF</button>
+      <button class="boton-calcular" onclick="calcularInversion(1)">Calcular Inversión Principal</button>
+
+      <div class="separador"></div>
+
+      <h2 style="color: var(--primario2);">Inversión Comparativa</h2>
+      
+      <label>MONTO INICIAL:</label>
+      <div class="input-container">
+        <input type="number" id="capitalInicial2" />
+        <span>Capital inicial para la inversión comparativa</span>
       </div>
 
-      <div class="result" id="resultado1"></div>
-      <canvas id="grafica1" height="300"></canvas>
+      <label>Tasa Anual (%):</label>
+      <div class="input-container">
+        <input type="number" id="tasa2" step="0.01" />
+        <span>Tasa de interés anual para la inversión comparativa</span>
+      </div>
 
-      <div class="tabla-titulo" id="tablaTitulo1">Tabla Amortizada de Inversión</div>
+      <label>Plazo (en meses):</label>
+      <div class="input-container">
+        <input type="number" id="plazo2" min="1" />
+        <span>Plazo en meses para la inversión comparativa</span>
+      </div>
+
+      <label>Aportación mensual:</label>
+      <div class="input-container">
+        <input type="number" id="aportacion2" />
+        <span>Aportación mensual para la inversión comparativa</span>
+      </div>
+
+      <label>Fecha de inicio:</label>
+      <div class="input-container">
+        <input type="date" id="fechaInicio2" />
+        <span>Fecha de inicio para la inversión comparativa</span>
+      </div>
+
+      <label>Capital objetivo (opcional):</label>
+      <div class="input-container">
+        <input type="number" id="capitalObjetivo2" placeholder="Ej: 500000" />
+        <span>Objetivo financiero para la inversión comparativa</span>
+      </div>
+
+      <button class="boton-comparar" onclick="calcularInversion(2)">Calcular Inversión Comparativa</button>
+    </div>
+
+    <!-- RESULTADOS -->
+    <div class="resultados-container">
+      <div id="resultado1"></div>
+      <div id="resultado2"></div>
+
+      <canvas id="graficaComparativa" height="300"></canvas>
+
+      <div class="tabla-titulo">Detalle de Inversión Principal</div>
       <div class="tabla-container">
         <table id="tablaResultados1">
           <thead>
@@ -333,58 +340,8 @@
           <tbody></tbody>
         </table>
       </div>
-    </div>
 
-    <!-- SEGUNDA INVERSIÓN (COMPARACIÓN) -->
-    <div class="inversion-container">
-      <h2>Inversión Comparativa</h2>
-      
-      <label>MONTO INICIAL:</label>
-      <div class="input-container">
-        <input type="number" id="capitalInicial2" />
-        <span>¿Con qué cantidad cuentas en este momento?</span>
-      </div>
-
-      <label>Tasa Anual (%):</label>
-      <div class="input-container">
-        <input type="number" id="tasa2" step="0.01" />
-        <span>Tasa de Interés anual (10% - 15% conservador)</span>
-      </div>
-
-      <label>Plazo (en meses):</label>
-      <div class="input-container">
-        <input type="number" id="plazo2" min="1" />
-        <span>¿Cuántos meses vas a invertir?</span>
-      </div>
-
-      <label>Aportación mensual:</label>
-      <div class="input-container">
-        <input type="number" id="aportacion2" />
-        <span>¿Cuánto puedes aportar cada mes?</span>
-      </div>
-
-      <label>Fecha de inicio:</label>
-      <div class="input-container">
-        <input type="date" id="fechaInicio2" />
-        <span>Fecha de inicio de la inversión</span>
-      </div>
-
-      <label>Capital objetivo (opcional):</label>
-      <div class="input-container">
-        <input type="number" id="capitalObjetivo2" placeholder="Ej: 500000" />
-        <span>Monto que deseas alcanzar</span>
-      </div>
-
-      <div class="buttons">
-        <button class="boton-comparar" onclick="calcular(2)">Calcular</button>
-        <button onclick="descargarCSV(2)">Descargar Excel</button>
-        <button onclick="descargarPDF(2)">Descargar PDF</button>
-      </div>
-
-      <div class="result" id="resultado2"></div>
-      <canvas id="grafica2" height="300"></canvas>
-
-      <div class="tabla-titulo2" id="tablaTitulo2">Tabla Amortizada de Inversión</div>
+      <div class="tabla-titulo" style="background-color: var(--primario2);">Detalle de Inversión Comparativa</div>
       <div class="tabla-container">
         <table id="tablaResultados2">
           <thead>
@@ -399,13 +356,13 @@
           <tbody></tbody>
         </table>
       </div>
-    </div>
-  </div>
 
-  <!-- GRÁFICA COMPARATIVA -->
-  <div class="grafica-comparativa" id="graficaComparativaContainer">
-    <h2 style="text-align: center; color: var(--primario);">Comparación de Inversiones</h2>
-    <canvas id="graficaComparativa" height="300"></canvas>
+      <div class="buttons">
+        <button onclick="descargarPDF()">Descargar PDF Completo</button>
+        <button onclick="descargarCSV(1)">Descargar Excel (Principal)</button>
+        <button onclick="descargarCSV(2)">Descargar Excel (Comparativa)</button>
+      </div>
+    </div>
   </div>
 
   <div class="leyenda">
@@ -413,19 +370,14 @@
   </div>
 
   <script>
-    let datosGrafica1 = [], datosGrafica2 = [];
+    // Variables globales
+    let datosInversion1 = [], datosInversion2 = [];
     let totalAportaciones1 = 0, totalInteres1 = 0, capital1 = 0;
     let totalAportaciones2 = 0, totalInteres2 = 0, capital2 = 0;
-    let chart1 = null, chart2 = null, chartComparativo = null;
+    let chartComparativo = null;
 
-    function toggleDarkMode() {
-      document.body.classList.toggle("dark");
-      if (chart1) chart1.update();
-      if (chart2) chart2.update();
-      if (chartComparativo) chartComparativo.update();
-    }
-
-    function calcular(inversionNum) {
+    // Función para calcular una inversión (1: principal, 2: comparativa)
+    function calcularInversion(inversionNum) {
       const prefix = inversionNum === 1 ? '' : '2';
       const capitalInicial = parseFloat(document.getElementById(`capitalInicial${prefix}`).value) || 0;
       const tasa = parseFloat(document.getElementById(`tasa${prefix}`).value) || 0;
@@ -439,47 +391,42 @@
         return;
       }
 
+      // Reiniciar variables
       if (inversionNum === 1) {
         capital1 = capitalInicial;
         totalInteres1 = 0;
         totalAportaciones1 = 0;
-        datosGrafica1 = [];
+        datosInversion1 = [];
       } else {
         capital2 = capitalInicial;
         totalInteres2 = 0;
         totalAportaciones2 = 0;
-        datosGrafica2 = [];
+        datosInversion2 = [];
       }
 
       const tasaMensual = tasa / 12 / 100;
-      const tabla = document.querySelector(`#tablaResultados${prefix} tbody`);
+      const tabla = document.querySelector(`#tablaResultados${inversionNum} tbody`);
       tabla.innerHTML = '';
       let meses = plazo;
       let cumpleObjetivo = false;
 
+      // Calcular meses necesarios si hay objetivo
       if (capitalObjetivo) {
+        let capitalTemp = capitalInicial;
         for (let i = 1; i <= 600; i++) {
-          const interes = (inversionNum === 1 ? capital1 : capital2) * tasaMensual;
-          if (inversionNum === 1) {
-            capital1 += interes + aportacion;
-            if (capital1 >= capitalObjetivo) {
-              meses = i;
-              cumpleObjetivo = true;
-              break;
-            }
-          } else {
-            capital2 += interes + aportacion;
-            if (capital2 >= capitalObjetivo) {
-              meses = i;
-              cumpleObjetivo = true;
-              break;
-            }
+          const interes = capitalTemp * tasaMensual;
+          capitalTemp += interes + aportacion;
+          if (capitalTemp >= capitalObjetivo) {
+            meses = i;
+            cumpleObjetivo = true;
+            break;
           }
         }
         if (inversionNum === 1) capital1 = capitalInicial;
         else capital2 = capitalInicial;
       }
 
+      // Calcular mes a mes
       for (let i = 1; i <= meses; i++) {
         let interes, capital;
         if (inversionNum === 1) {
@@ -499,6 +446,7 @@
         const fecha = new Date(fechaInicio);
         fecha.setMonth(fecha.getMonth() + i);
 
+        // Agregar fila a la tabla
         tabla.innerHTML += `
           <tr>
             <td>${i}</td>
@@ -509,109 +457,35 @@
           </tr>
         `;
 
+        // Guardar datos para gráfico
         if (inversionNum === 1) {
-          datosGrafica1.push({ mes: i, total: capital1 });
+          datosInversion1.push({ mes: i, total: capital1 });
         } else {
-          datosGrafica2.push({ mes: i, total: capital2 });
+          datosInversion2.push({ mes: i, total: capital2 });
         }
       }
 
-      document.getElementById(`resultado${prefix}`).innerHTML = `
-        <strong>Resumen de Inversión:</strong><br>
+      // Mostrar resultados
+      document.getElementById(`resultado${inversionNum}`).innerHTML = `
+        <strong>Resumen Inversión ${inversionNum === 1 ? 'Principal' : 'Comparativa'}:</strong><br>
         Capital inicial: ${formatCurrency(capitalInicial)}<br>
-        Tasa de interés anual: ${tasa}%<br>
-        Plazo: ${meses} meses<br>
+        Tasa anual: ${tasa}% | Plazo: ${meses} meses<br>
         Aportación mensual: ${formatCurrency(aportacion)}<br>
         Total aportado: ${formatCurrency(inversionNum === 1 ? totalAportaciones1 : totalAportaciones2)}<br>
-        Total interés generado: ${formatCurrency(inversionNum === 1 ? totalInteres1 : totalInteres2)}<br>
-        <strong>Total al final del plazo: ${formatCurrency(inversionNum === 1 ? capital1 : capital2)}</strong>
+        Interés generado: ${formatCurrency(inversionNum === 1 ? totalInteres1 : totalInteres2)}<br>
+        <strong>Total final: ${formatCurrency(inversionNum === 1 ? capital1 : capital2)}</strong>
+        ${cumpleObjetivo ? `<br>🎉 <strong>¡Objetivo alcanzado en ${meses} meses!</strong>` : ''}
       `;
 
-      if (cumpleObjetivo) {
-        document.getElementById(`resultado${prefix}`).innerHTML += `
-          <br>🎉 <strong>¡Objetivo alcanzado en ${meses} meses!</strong>
-        `;
-      }
-
-      document.getElementById(`tablaResultados${prefix}`).style.display = "table";
-      document.getElementById(`tablaTitulo${prefix}`).style.display = "block";
-
-      generarGrafico(inversionNum);
-      
-      // Mostrar gráfica comparativa si ambas inversiones están calculadas
-      if (datosGrafica1.length > 0 && datosGrafica2.length > 0) {
+      // Generar gráfico comparativo si hay datos en ambas inversiones
+      if (datosInversion1.length > 0 && datosInversion2.length > 0) {
         generarGraficoComparativo();
       }
     }
 
-    function formatCurrency(value) {
-      return new Intl.NumberFormat('es-MX', { 
-        style: 'currency', 
-        currency: 'MXN',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(value);
-    }
-
-    function generarGrafico(inversionNum) {
-      const prefix = inversionNum === 1 ? '1' : '2';
-      const ctx = document.getElementById(`grafica${prefix}`).getContext('2d');
-      const color = inversionNum === 1 ? '#2b6777' : '#7d2b77';
-      
-      if (inversionNum === 1 && chart1) {
-        chart1.destroy();
-      } else if (inversionNum === 2 && chart2) {
-        chart2.destroy();
-      }
-
-      const chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: (inversionNum === 1 ? datosGrafica1 : datosGrafica2).map(d => `Mes ${d.mes}`),
-          datasets: [{
-            label: `Total acumulado (MXN) - Inv. ${inversionNum}`,
-            data: (inversionNum === 1 ? datosGrafica1 : datosGrafica2).map(d => d.total),
-            borderColor: color,
-            backgroundColor: inversionNum === 1 ? 'rgba(43, 103, 119, 0.1)' : 'rgba(125, 43, 119, 0.1)',
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'top',
-            },
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  return ` ${formatCurrency(context.raw)}`;
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: false,
-              ticks: {
-                callback: (value) => formatCurrency(value)
-              }
-            }
-          }
-        }
-      });
-
-      if (inversionNum === 1) {
-        chart1 = chart;
-      } else {
-        chart2 = chart;
-      }
-    }
-
+    // Función para generar el gráfico comparativo
     function generarGraficoComparativo() {
       const ctx = document.getElementById('graficaComparativa').getContext('2d');
-      document.getElementById('graficaComparativaContainer').style.display = 'block';
       
       if (chartComparativo) {
         chartComparativo.destroy();
@@ -619,8 +493,8 @@
 
       // Determinar el máximo de meses entre ambas inversiones
       const maxMeses = Math.max(
-        datosGrafica1.length > 0 ? datosGrafica1[datosGrafica1.length - 1].mes : 0,
-        datosGrafica2.length > 0 ? datosGrafica2[datosGrafica2.length - 1].mes : 0
+        datosInversion1.length > 0 ? datosInversion1[datosInversion1.length - 1].mes : 0,
+        datosInversion2.length > 0 ? datosInversion2[datosInversion2.length - 1].mes : 0
       );
 
       // Crear etiquetas para todos los meses
@@ -632,13 +506,13 @@
       // Mapear datos para que coincidan con todas las etiquetas
       const data1 = labels.map((_, index) => {
         const mes = index + 1;
-        const dato = datosGrafica1.find(d => d.mes === mes);
+        const dato = datosInversion1.find(d => d.mes === mes);
         return dato ? dato.total : null;
       });
 
       const data2 = labels.map((_, index) => {
         const mes = index + 1;
-        const dato = datosGrafica2.find(d => d.mes === mes);
+        const dato = datosInversion2.find(d => d.mes === mes);
         return dato ? dato.total : null;
       });
 
@@ -653,7 +527,8 @@
               borderColor: '#2b6777',
               backgroundColor: 'rgba(43, 103, 119, 0.1)',
               fill: true,
-              tension: 0.3
+              tension: 0.3,
+              borderWidth: 2
             },
             {
               label: 'Inversión Comparativa',
@@ -661,7 +536,8 @@
               borderColor: '#7d2b77',
               backgroundColor: 'rgba(125, 43, 119, 0.1)',
               fill: true,
-              tension: 0.3
+              tension: 0.3,
+              borderWidth: 2
             }
           ]
         },
@@ -691,8 +567,18 @@
       });
     }
 
-    function descargarPDF(inversionNum) {
-      const prefix = inversionNum === 1 ? '' : '2';
+    // Función para formatear moneda
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('es-MX', { 
+        style: 'currency', 
+        currency: 'MXN',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(value);
+    }
+
+    // Función para descargar PDF
+    function descargarPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({
         orientation: 'portrait',
@@ -700,46 +586,58 @@
         format: 'a4'
       });
       
+      // Título
       doc.setFontSize(20);
-      doc.setTextColor(inversionNum === 1 ? 43 : 125, 103 : 43, 119 : 119);
+      doc.setTextColor(43, 103, 119);
       doc.setFont('helvetica', 'bold');
-      doc.text(`Reporte de Inversión ${inversionNum === 1 ? 'Principal' : 'Comparativa'}`, 105, 15, { align: 'center' });
+      doc.text("Reporte Comparativo de Inversiones", 105, 15, { align: 'center' });
       
-      doc.setDrawColor(inversionNum === 1 ? 43 : 125, 103 : 43, 119 : 119);
+      // Línea divisoria
+      doc.setDrawColor(43, 103, 119);
       doc.setLineWidth(0.5);
       doc.line(20, 20, 190, 20);
       
+      // Datos de inversión principal
       doc.setFontSize(12);
       doc.setTextColor(0, 0, 0);
       doc.setFont('helvetica', 'normal');
+      doc.text("Inversión Principal", 20, 30);
       
-      const capitalInicial = parseFloat(document.getElementById(`capitalInicial${prefix}`).value) || 0;
-      const tasa = parseFloat(document.getElementById(`tasa${prefix}`).value) || 0;
-      const plazo = parseInt(document.getElementById(`plazo${prefix}`).value) || 0;
-      const aportacion = parseFloat(document.getElementById(`aportacion${prefix}`).value) || 0;
+      const capitalInicial1 = parseFloat(document.getElementById('capitalInicial').value) || 0;
+      const tasa1 = parseFloat(document.getElementById('tasa').value) || 0;
+      const plazo1 = parseInt(document.getElementById('plazo').value) || 0;
+      const aportacion1 = parseFloat(document.getElementById('aportacion').value) || 0;
       
-      doc.setFillColor(240, 240, 240);
-      doc.rect(20, 25, 170, 30, 'F');
-      doc.text("Datos de la inversión", 25, 30);
-      doc.text(`Capital inicial: ${formatCurrency(capitalInicial)}`, 25, 37);
-      doc.text(`Tasa anual: ${tasa}% | Plazo: ${plazo} meses`, 25, 44);
-      doc.text(`Aportación mensual: ${formatCurrency(aportacion)}`, 25, 51);
+      doc.text(`Capital inicial: ${formatCurrency(capitalInicial1)}`, 20, 37);
+      doc.text(`Tasa anual: ${tasa1}% | Plazo: ${plazo1} meses`, 20, 44);
+      doc.text(`Aportación mensual: ${formatCurrency(aportacion1)}`, 20, 51);
+      doc.text(`Total final: ${formatCurrency(capital1)}`, 20, 58);
       
-      doc.setFillColor(230, 245, 230);
-      doc.rect(20, 60, 170, 20, 'F');
-      doc.text("Resultados finales", 25, 65);
-      doc.text(`Total aportado: ${formatCurrency(inversionNum === 1 ? totalAportaciones1 : totalAportaciones2)}`, 25, 72);
-      doc.text(`Interés generado: ${formatCurrency(inversionNum === 1 ? totalInteres1 : totalInteres2)}`, 100, 72);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Total acumulado: ${formatCurrency(inversionNum === 1 ? capital1 : capital2)}`, 25, 79);
-      doc.setFont('helvetica', 'normal');
+      // Datos de inversión comparativa
+      doc.text("Inversión Comparativa", 20, 70);
       
+      const capitalInicial2 = parseFloat(document.getElementById('capitalInicial2').value) || 0;
+      const tasa2 = parseFloat(document.getElementById('tasa2').value) || 0;
+      const plazo2 = parseInt(document.getElementById('plazo2').value) || 0;
+      const aportacion2 = parseFloat(document.getElementById('aportacion2').value) || 0;
+      
+      doc.text(`Capital inicial: ${formatCurrency(capitalInicial2)}`, 20, 77);
+      doc.text(`Tasa anual: ${tasa2}% | Plazo: ${plazo2} meses`, 20, 84);
+      doc.text(`Aportación mensual: ${formatCurrency(aportacion2)}`, 20, 91);
+      doc.text(`Total final: ${formatCurrency(capital2)}`, 20, 98);
+      
+      // Gráfico comparativo
+      const canvas = document.getElementById('graficaComparativa');
+      const imgData = canvas.toDataURL('image/png');
+      doc.addImage(imgData, 'PNG', 20, 105, 170, 80);
+      
+      // Tablas
       doc.autoTable({
-        html: `#tablaResultados${prefix}`,
-        startY: 85,
+        html: '#tablaResultados1',
+        startY: 190,
         theme: 'grid',
         headStyles: {
-          fillColor: [inversionNum === 1 ? 43 : 125, inversionNum === 1 ? 103 : 43, 119],
+          fillColor: [43, 103, 119],
           textColor: 255,
           fontSize: 10
         },
@@ -747,10 +645,6 @@
           fontSize: 8
         },
         margin: { top: 10 },
-        styles: {
-          overflow: 'linebreak',
-          cellWidth: 'wrap'
-        },
         columnStyles: {
           0: { cellWidth: 15 },
           1: { cellWidth: 25 },
@@ -760,28 +654,48 @@
         }
       });
       
-      const canvas = document.getElementById(`grafica${prefix}`);
-      const imgData = canvas.toDataURL('image/png');
-      doc.addImage(imgData, 'PNG', 20, doc.lastAutoTable.finalY + 10, 170, 80);
+      doc.autoTable({
+        html: '#tablaResultados2',
+        startY: doc.lastAutoTable.finalY + 10,
+        theme: 'grid',
+        headStyles: {
+          fillColor: [125, 43, 119],
+          textColor: 255,
+          fontSize: 10
+        },
+        bodyStyles: {
+          fontSize: 8
+        },
+        margin: { top: 10 },
+        columnStyles: {
+          0: { cellWidth: 15 },
+          1: { cellWidth: 25 },
+          2: { cellWidth: 25 },
+          3: { cellWidth: 25 },
+          4: { cellWidth: 25 }
+        }
+      });
       
+      // Pie de página
       doc.setFontSize(10);
       doc.setTextColor(100);
       doc.text("© Calculadora de Inversión - " + new Date().toLocaleDateString(), 105, 285, { align: 'center' });
       
-      doc.save(`reporte_inversion_${inversionNum === 1 ? 'principal' : 'comparativa'}.pdf`);
+      doc.save('reporte_comparativo_inversiones.pdf');
     }
 
+    // Función para descargar CSV
     function descargarCSV(inversionNum) {
       const prefix = inversionNum === 1 ? '' : '2';
-      const datos = inversionNum === 1 ? datosGrafica1 : datosGrafica2;
+      const datos = inversionNum === 1 ? datosInversion1 : datosInversion2;
       
       if (datos.length === 0) {
-        alert("Primero calcula la inversión.");
+        alert(`Primero calcula la inversión ${inversionNum === 1 ? 'principal' : 'comparativa'}.`);
         return;
       }
       
       let csv = "Mes,Fecha,Aportación ($),Interés ($),Total ($)\n";
-      const rows = document.querySelectorAll(`#tablaResultados${prefix} tbody tr`);
+      const rows = document.querySelectorAll(`#tablaResultados${inversionNum} tbody tr`);
       
       rows.forEach(row => {
         const cells = row.querySelectorAll('td');
@@ -793,6 +707,14 @@
       link.href = URL.createObjectURL(blob);
       link.download = `inversion_${inversionNum === 1 ? 'principal' : 'comparativa'}.csv`;
       link.click();
+    }
+
+    // Función para cambiar modo oscuro/claro
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark");
+      if (chartComparativo) {
+        chartComparativo.update();
+      }
     }
   </script>
 </body>

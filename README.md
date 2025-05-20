@@ -432,107 +432,96 @@
       });
     }
 
-    function descargarPDF() {
-      if (datosGrafica.length === 0) {
-        alert("Primero calcula una inversión.");
-        return;
+function descargarPDF() {
+  if (datosGrafica.length === 0) {
+    alert("Primero calcula una inversión.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+  
+  // --- Título y encabezado ---
+  doc.setFontSize(20);
+  doc.setTextColor(43, 103, 119);
+  doc.setFont('helvetica', 'bold');
+  doc.text("Reporte de Inversión", 105, 15, { align: 'center' });
+  doc.setDrawColor(43, 103, 119);
+  doc.setLineWidth(0.5);
+  doc.line(20, 20, 190, 20);
+  
+  // --- Datos de la inversión ---
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  doc.setFillColor(240, 240, 240);
+  doc.rect(20, 25, 170, 30, 'F');
+  doc.text("Datos de la inversión", 25, 30);
+  
+  const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
+  const tasa = parseFloat(document.getElementById('tasa').value) || 0;
+  const plazo = parseInt(document.getElementById('plazo').value) || 0;
+  const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
+  
+  doc.text(`Capital inicial: ${formatCurrency(capitalInicial)}`, 25, 37);
+  doc.text(`Tasa anual: ${tasa}% | Plazo: ${plazo} meses`, 25, 44);
+  doc.text(`Aportación mensual: ${formatCurrency(aportacion)}`, 25, 51);
+  
+  // --- Resultados finales ---
+  doc.setFillColor(230, 245, 230);
+  doc.rect(20, 60, 170, 20, 'F');
+  doc.text("Resultados finales", 25, 65);
+  doc.text(`Total aportado: ${formatCurrency(totalAportaciones)}`, 25, 72);
+  doc.text(`Interés generado: ${formatCurrency(totalInteres)}`, 100, 72);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Total acumulado: ${formatCurrency(capital)}`, 25, 79);
+  doc.setFont('helvetica', 'normal');
+
+  // --- Gráfico (antes que la tabla) ---
+  // Asegurar que el gráfico esté actualizado
+  if (chart) {
+    chart.update();
+  }
+
+  setTimeout(() => {
+    const canvas = document.getElementById('grafica');
+    const imgData = canvas.toDataURL('image/png', 1.0); // Calidad al 100%
+    doc.addImage(imgData, 'PNG', 20, 85, 170, 80); // Posición después de los resultados (85 en Y)
+
+    // --- Tabla (después del gráfico) ---
+    doc.autoTable({
+      html: '#tablaResultados',
+      startY: 170, // Ajustado para que esté después del gráfico
+      theme: 'grid',
+      headStyles: {
+        fillColor: [43, 103, 119],
+        textColor: 255,
+        fontSize: 10
+      },
+      bodyStyles: {
+        fontSize: 8
+      },
+      columnStyles: {
+        0: { cellWidth: 15 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 25 },
+        4: { cellWidth: 25 }
       }
+    });
 
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      // URLs de las imágenes (¡REEMPLAZA CON TUS URLs REALES!)
-      const fondoPDF = 'https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/fondoPDF.png';
-      const logoBailmex = 'https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/Bailmex.png';
-      
-      // --- Agregar fondo ---
-      doc.addImage(fondoPDF, 'PNG', 0, 0, 210, 297);
-      doc.setFillColor(255, 255, 255, 0.7);
-      doc.rect(0, 0, 210, 297, 'F');
-      
-      // --- Logo Bailmex (esquina superior derecha) ---
-      doc.addImage(logoBailmex, 'PNG', 150, 10, 40, 20);
-
-      // --- Título y encabezado ---
-      doc.setFontSize(20);
-      doc.setTextColor(43, 103, 119);
-      doc.setFont('helvetica', 'bold');
-      doc.text("Reporte de Inversión", 105, 25, { align: 'center' });
-      doc.setDrawColor(43, 103, 119);
-      doc.setLineWidth(0.5);
-      doc.line(20, 30, 190, 30);
-      
-      // --- Datos de la inversión ---
-      doc.setFontSize(12);
-      doc.setTextColor(0, 0, 0);
-      doc.setFont('helvetica', 'normal');
-      doc.setFillColor(240, 240, 240, 0.8);
-      doc.rect(20, 35, 170, 30, 'F');
-      doc.text("Datos de la inversión", 25, 40);
-      
-      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
-      const tasa = parseFloat(document.getElementById('tasa').value) || 0;
-      const plazo = parseInt(document.getElementById('plazo').value) || 0;
-      const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
-      
-      doc.text(`Capital inicial: ${formatCurrency(capitalInicial)}`, 25, 47);
-      doc.text(`Tasa anual: ${tasa}% | Plazo: ${plazo} meses`, 25, 54);
-      doc.text(`Aportación mensual: ${formatCurrency(aportacion)}`, 25, 61);
-      
-      // --- Resultados finales ---
-      doc.setFillColor(230, 245, 230, 0.8);
-      doc.rect(20, 70, 170, 20, 'F');
-      doc.text("Resultados finales", 25, 75);
-      doc.text(`Total aportado: ${formatCurrency(totalAportaciones)}`, 25, 82);
-      doc.text(`Interés generado: ${formatCurrency(totalInteres)}`, 100, 82);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`Total acumulado: ${formatCurrency(capital)}`, 25, 89);
-      doc.setFont('helvetica', 'normal');
-
-      // --- Gráfico ---
-      setTimeout(() => {
-        const canvas = document.getElementById('grafica');
-        const imgData = canvas.toDataURL('image/png', 1.0);
-        doc.setFillColor(255, 255, 255, 0.9);
-        doc.rect(20, 95, 170, 80, 'F');
-        doc.addImage(imgData, 'PNG', 25, 100, 160, 70);
-
-        // --- Tabla ---
-        doc.setFillColor(255, 255, 255, 0.9);
-        doc.rect(20, 180, 170, 90, 'F');
-        doc.autoTable({
-          html: '#tablaResultados',
-          startY: 185,
-          theme: 'grid',
-          headStyles: {
-            fillColor: [43, 103, 119],
-            textColor: 255,
-            fontSize: 10
-          },
-          bodyStyles: {
-            fontSize: 8
-          },
-          columnStyles: {
-            0: { cellWidth: 15 },
-            1: { cellWidth: 25 },
-            2: { cellWidth: 25 },
-            3: { cellWidth: 25 },
-            4: { cellWidth: 25 }
-          }
-        });
-
-        // Pie de página
-        doc.setFontSize(10);
-        doc.setTextColor(43, 103, 119);
-        doc.text("© Calculadora de Inversión - " + new Date().toLocaleDateString(), 105, 285, { align: 'center' });
-        
-        doc.save('reporte_inversion.pdf');
-      }, 300);
-    }
+    // Pie de página
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text("© Calculadora de Inversión - " + new Date().toLocaleDateString(), 105, 285, { align: 'center' });
+    
+    doc.save('reporte_inversion.pdf');
+  }, 300); // Retraso para renderizar el gráfico
+}
 
     function descargarCSV() {
       if (datosGrafica.length === 0) {

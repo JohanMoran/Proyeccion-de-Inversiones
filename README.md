@@ -445,20 +445,18 @@
         format: 'a4'
       });
       
-      // URLs de las imágenes (¡REEMPLAZA CON TUS URLS REALES!)
+      // URLs de las imágenes (¡REEMPLAZA CON TUS URLs REALES!)
       const fondoPDF = 'https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/fondoPDF.png';
       const logoBailmex = 'https://raw.githubusercontent.com/TU_USUARIO/TU_REPO/main/Bailmex.png';
       
       // --- Agregar fondo ---
-      doc.addImage(fondoPDF, 'PNG', 0, 0, 210, 297); // A4: 210x297mm
-      
-      // --- Capa semitransparente para legibilidad ---
+      doc.addImage(fondoPDF, 'PNG', 0, 0, 210, 297);
       doc.setFillColor(255, 255, 255, 0.7);
       doc.rect(0, 0, 210, 297, 'F');
       
       // --- Logo Bailmex (esquina superior derecha) ---
-      doc.addImage(logoBailmex, 'PNG', 150, 10, 40, 20); // Ajusta posición y tamaño según necesites
-      
+      doc.addImage(logoBailmex, 'PNG', 150, 10, 40, 20);
+
       // --- Título y encabezado ---
       doc.setFontSize(20);
       doc.setTextColor(43, 103, 119);
@@ -499,7 +497,6 @@
       setTimeout(() => {
         const canvas = document.getElementById('grafica');
         const imgData = canvas.toDataURL('image/png', 1.0);
-        // Fondo para el gráfico
         doc.setFillColor(255, 255, 255, 0.9);
         doc.rect(20, 95, 170, 80, 'F');
         doc.addImage(imgData, 'PNG', 25, 100, 160, 70);

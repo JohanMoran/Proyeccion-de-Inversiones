@@ -525,7 +525,7 @@
       // Sección con fondo
       doc.setFillColor(240, 240, 240);
       doc.rect(margin, 35, pageWidth - 2 * margin, 25, 'F');
-      doc.text("📋 Datos de la inversión", margin + 5, 42);
+      doc.text("Datos de la inversión", margin + 5, 42);
       
       // Texto organizado en columnas
       doc.text(`• Capital inicial: ${formatCurrency(capitalInicial)}`, margin + 5, 50);
@@ -546,7 +546,7 @@
         doc.rect(margin, 155, pageWidth - 2 * margin, 15, 'F');
         doc.setFont('helvetica', 'bold');
         doc.setTextColor(0, 100, 0);
-        doc.text("📈 Resultados finales", margin + 5, 165);
+        doc.text("Resultados finales", margin + 5, 165);
         
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(0, 0, 0);
@@ -558,7 +558,7 @@
         // --- Tabla ---
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
-        doc.text("📅 Detalle mes a mes", margin + 5, 195);
+        doc.text("Detalle mes a mes", margin + 5, 195);
 
         doc.autoTable({
           html: '#tablaResultados',

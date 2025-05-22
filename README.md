@@ -353,7 +353,9 @@
         totalInteres += interes;
         capital += interes;
         
-        if ((i - 1) % periodicidad === 0) {
+        // Determinar si este mes corresponde a una aportación
+        const esAportacion = (i - 1) % periodicidad === 0;
+        if (esAportacion) {
           capital += aportacion;
           totalAportaciones += aportacion;
         }
@@ -361,17 +363,16 @@
         const fecha = new Date(fechaInicio);
         fecha.setMonth(fecha.getMonth() + i);
 
-        if ((i - 1) % periodicidad === 0 || i % 12 === 0 || i === meses || i === 1) {
-          tabla.innerHTML += `
-            <tr>
-              <td>${i}</td>
-              <td>${fecha.toLocaleDateString('es-MX')}</td>
-              <td>${(i - 1) % periodicidad === 0 ? formatCurrency(aportacion) : '$0.00'}</td>
-              <td>${formatCurrency(interes)}</td>
-              <td>${formatCurrency(capital)}</td>
-            </tr>
-          `;
-        }
+        // Mostrar todas las filas con $0.00 en aportación cuando no corresponde
+        tabla.innerHTML += `
+          <tr>
+            <td>${i}</td>
+            <td>${fecha.toLocaleDateString('es-MX')}</td>
+            <td>${esAportacion ? formatCurrency(aportacion) : '$0.00'}</td>
+            <td>${formatCurrency(interes)}</td>
+            <td>${formatCurrency(capital)}</td>
+          </tr>
+        `;
 
         datosGrafica.push({ mes: i, total: capital });
       }

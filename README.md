@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculadora de inversión avanzada</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculadora de inversión</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -49,8 +48,7 @@
     }
     #portada img {
       width: 100%;
-      max-height: 200px;
-      object-fit: contain;
+      object-fit: cover;
       border-radius: 8px;
     }
     label {
@@ -113,7 +111,6 @@
       font-size: 16px;
       font-weight: bold;
       color: var(--primario);
-      line-height: 1.6;
     }
     #tablaResultados {
       width: 100%;
@@ -196,24 +193,13 @@
     body.dark .tabla-titulo {
       background-color: #2c2c2c;
     }
-    .tooltip-icon {
-      display: inline-block;
-      width: 18px;
-      height: 18px;
-      background-color: var(--primario);
-      color: white;
-      border-radius: 50%;
-      text-align: center;
-      font-size: 12px;
-      margin-left: 5px;
-      cursor: help;
-    }
   </style>
 </head>
 <body>
   <div id="portada">
     <img src="https://raw.githubusercontent.com/JohanMoran/Proyeccion-de-Inversiones/main/ROBPAIERO_TUASESORDECONFIANZA.PNG" 
-         alt="Calculadora de Inversión Robpairé">
+         alt="Calculadora de Inversión"
+         style="width: 100%; max-width: 900px; height: auto; border-radius: 8px;">
   </div>
   <button class="dark-mode-btn" onclick="toggleDarkMode()">🌙 Modo Oscuro</button>
 
@@ -260,7 +246,7 @@
   <div class="buttons">
     <button class="boton-calcular" onclick="calcular()">Calcular</button>
     <button onclick="descargarCSV()">Descargar Excel</button>
-    <button onclick="descargarPDF()">Descargar PDF Premium</button>
+    <button onclick="descargarPDF()">Descargar PDF</button>
   </div>
 
   <div class="result" id="resultado"></div>
@@ -284,37 +270,17 @@
   </div>
 
   <script>
-    // Variables globales
     let datosGrafica = [];
     let totalAportaciones = 0, totalInteres = 0, capital = 0;
     let chart = null;
-    const { jsPDF } = window.jspdf;
 
-    // Función para alternar modo oscuro/claro
     function toggleDarkMode() {
       document.body.classList.toggle("dark");
       if (chart) {
         chart.update();
       }
-      localStorage.setItem('darkMode', document.body.classList.contains('dark'));
     }
 
-    // Cargar preferencia de modo oscuro al iniciar
-    if (localStorage.getItem('darkMode') === 'true') {
-      document.body.classList.add('dark');
-    }
-
-    // Formatear moneda
-    function formatCurrency(value) {
-      return new Intl.NumberFormat('es-MX', { 
-        style: 'currency', 
-        currency: 'MXN',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(value);
-    }
-
-    // Función principal de cálculo
     function calcular() {
       const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
       const tasa = parseFloat(document.getElementById('tasa').value) || 0;
@@ -323,13 +289,11 @@
       const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
       const fechaInicio = new Date(document.getElementById('fechaInicio').value);
 
-      // Validaciones
       if (plazo <= 0 || tasa <= 0) {
         alert("Por favor, ingresa un plazo y una tasa válidos.");
         return;
       }
 
-      // Reiniciar variables
       capital = capitalInicial;
       totalInteres = 0;
       totalAportaciones = 0;
@@ -340,7 +304,6 @@
       let meses = plazo;
       let cumpleObjetivo = false;
 
-      // Calcular meses necesarios si hay objetivo
       if (capitalObjetivo) {
         for (let i = 1; i <= 600; i++) {
           const interes = capital * tasaMensual;
@@ -351,10 +314,9 @@
             break;
           }
         }
-        capital = capitalInicial; // Resetear para cálculo completo
+        capital = capitalInicial;
       }
 
-      // Generar tabla mes por mes
       for (let i = 1; i <= meses; i++) {
         const interes = capital * tasaMensual;
         totalInteres += interes;
@@ -367,7 +329,7 @@
         tabla.innerHTML += `
           <tr>
             <td>${i}</td>
-            <td>${fecha.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+            <td>${fecha.toLocaleDateString('es-MX')}</td>
             <td>${formatCurrency(aportacion)}</td>
             <td>${formatCurrency(interes)}</td>
             <td>${formatCurrency(capital)}</td>
@@ -377,49 +339,59 @@
         datosGrafica.push({ mes: i, total: capital });
       }
 
-      // Mostrar resultados
       document.getElementById('resultado').innerHTML = `
-        <strong>📊 Resumen de Inversión:</strong><br>
-        • Capital inicial: ${formatCurrency(capitalInicial)}<br>
-        • Tasa de interés anual: ${tasa}%<br>
-        • Plazo: ${meses} meses (${(meses/12).toFixed(1)} años)<br>
-        • Aportación mensual: ${formatCurrency(aportacion)}<br>
-        • Total aportado: ${formatCurrency(totalAportaciones)}<br>
-        • Total interés generado: ${formatCurrency(totalInteres)}<br>
-        <strong>💰 Total al final del plazo: ${formatCurrency(capital)}</strong>
+        <strong>Resumen de Inversión:</strong><br>
+        Capital inicial: ${formatCurrency(capitalInicial)}<br>
+        Tasa de interés anual: ${tasa}%<br>
+        Plazo: ${meses} meses<br>
+        Aportación mensual: ${formatCurrency(aportacion)}<br>
+        Total aportado: ${formatCurrency(totalAportaciones)}<br>
+        Total interés generado: ${formatCurrency(totalInteres)}<br>
+        <strong>Total al final del plazo: ${formatCurrency(capital)}</strong>
       `;
 
-      // Mensaje especial si se alcanzó el objetivo
       if (cumpleObjetivo) {
         const años = Math.floor(meses / 12);
         const mesesRestantes = meses % 12;
         
         let textoMeses = "";
-        if (años > 0) textoMeses += `${años} ${años === 1 ? 'año' : 'años'}`;
+        if (años > 0) {
+          textoMeses += `${años} ${años === 1 ? 'año' : 'años'}`;
+        }
         if (mesesRestantes > 0) {
           if (años > 0) textoMeses += " y ";
           textoMeses += `${mesesRestantes} ${mesesRestantes === 1 ? 'mes' : 'meses'}`;
         }
-        if (meses < 12) textoMeses = `${meses} ${meses === 1 ? 'mes' : 'meses'}`;
+        if (meses < 12) {
+          textoMeses = `${meses} ${meses === 1 ? 'mes' : 'meses'}`;
+        }
 
         document.getElementById('resumenFinal').innerHTML = `
-          🎉 <strong>¡Felicidades! Tu objetivo de ${formatCurrency(capitalObjetivo)} se alcanzará en ${textoMeses}</strong><br>
-          💡 Consejo: Considera aumentar tus aportaciones para llegar aún más rápido.
+          🎉 <strong>¡Objetivo de ${formatCurrency(capitalObjetivo)} alcanzado en ${textoMeses}!</strong>
         `;
       }
 
-      // Mostrar tabla y título
       document.getElementById('tablaResultados').style.display = "table";
       document.getElementById('tablaTitulo').style.display = "block";
 
       generarGrafico();
     }
 
-    // Generar gráfico interactivo
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('es-MX', { 
+        style: 'currency', 
+        currency: 'MXN',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(value);
+    }
+
     function generarGrafico() {
       const ctx = document.getElementById('grafica').getContext('2d');
       
-      if (chart) chart.destroy();
+      if (chart) {
+        chart.destroy();
+      }
 
       chart = new Chart(ctx, {
         type: 'line',
@@ -431,10 +403,7 @@
             borderColor: '#2b6777',
             backgroundColor: 'rgba(43, 103, 119, 0.1)',
             fill: true,
-            tension: 0.3,
-            borderWidth: 2,
-            pointRadius: 3,
-            pointBackgroundColor: '#2b6777'
+            tension: 0.3
           }]
         },
         options: {
@@ -442,15 +411,12 @@
           plugins: {
             legend: {
               position: 'top',
-              labels: {
-                font: {
-                  size: 14
-                }
-              }
             },
             tooltip: {
               callbacks: {
-                label: (context) => ` ${formatCurrency(context.raw)}`
+                label: (context) => {
+                  return ` ${formatCurrency(context.raw)}`;
+                }
               }
             }
           },
@@ -459,14 +425,6 @@
               beginAtZero: false,
               ticks: {
                 callback: (value) => formatCurrency(value)
-              },
-              grid: {
-                color: 'rgba(0, 0, 0, 0.1)'
-              }
-            },
-            x: {
-              grid: {
-                display: false
               }
             }
           }
@@ -474,134 +432,97 @@
       });
     }
 
-    // Descargar PDF profesional
-    function descargarPDF() {
-      if (datosGrafica.length === 0) {
-        alert("Primero calcula una inversión.");
-        return;
+function descargarPDF() {
+  if (datosGrafica.length === 0) {
+    alert("Primero calcula una inversión.");
+    return;
+  }
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+  
+  // --- Título y encabezado ---
+  doc.setFontSize(20);
+  doc.setTextColor(43, 103, 119);
+  doc.setFont('helvetica', 'bold');
+  doc.text("Reporte de Inversión", 105, 15, { align: 'center' });
+  doc.setDrawColor(43, 103, 119);
+  doc.setLineWidth(0.5);
+  doc.line(20, 20, 190, 20);
+  
+  // --- Datos de la inversión ---
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  doc.setFont('helvetica', 'normal');
+  doc.setFillColor(240, 240, 240);
+  doc.rect(20, 25, 170, 30, 'F');
+  doc.text("Datos de la inversión", 25, 30);
+  
+  const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
+  const tasa = parseFloat(document.getElementById('tasa').value) || 0;
+  const plazo = parseInt(document.getElementById('plazo').value) || 0;
+  const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
+  
+  doc.text(`Capital inicial: ${formatCurrency(capitalInicial)}`, 25, 37);
+  doc.text(`Tasa anual: ${tasa}% | Plazo: ${plazo} meses`, 25, 44);
+  doc.text(`Aportación mensual: ${formatCurrency(aportacion)}`, 25, 51);
+  
+  // --- Resultados finales ---
+  doc.setFillColor(230, 245, 230);
+  doc.rect(20, 60, 170, 20, 'F');
+  doc.text("Resultados finales", 25, 65);
+  doc.text(`Total aportado: ${formatCurrency(totalAportaciones)}`, 25, 72);
+  doc.text(`Interés generado: ${formatCurrency(totalInteres)}`, 100, 72);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Total acumulado: ${formatCurrency(capital)}`, 25, 79);
+  doc.setFont('helvetica', 'normal');
+
+  // --- Gráfico (antes que la tabla) ---
+  // Asegurar que el gráfico esté actualizado
+  if (chart) {
+    chart.update();
+  }
+
+  setTimeout(() => {
+    const canvas = document.getElementById('grafica');
+    const imgData = canvas.toDataURL('image/png', 1.0); // Calidad al 100%
+    doc.addImage(imgData, 'PNG', 20, 85, 170, 80); // Posición después de los resultados (85 en Y)
+
+    // --- Tabla (después del gráfico) ---
+    doc.autoTable({
+      html: '#tablaResultados',
+      startY: 170, // Ajustado para que esté después del gráfico
+      theme: 'grid',
+      headStyles: {
+        fillColor: [43, 103, 119],
+        textColor: 255,
+        fontSize: 10
+      },
+      bodyStyles: {
+        fontSize: 8
+      },
+      columnStyles: {
+        0: { cellWidth: 15 },
+        1: { cellWidth: 25 },
+        2: { cellWidth: 25 },
+        3: { cellWidth: 25 },
+        4: { cellWidth: 25 }
       }
+    });
 
-      const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      // Configuración de página
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 20;
+    // Pie de página
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text("© Calculadora de Inversión - " + new Date().toLocaleDateString(), 105, 285, { align: 'center' });
+    
+    doc.save('reporte_inversion.pdf');
+  }, 300); // Retraso para renderizar el gráfico
+}
 
-      // --- Logo ---
-      const logoUrl = "https://raw.githubusercontent.com/JohanMoran/Proyeccion-de-Inversiones/main/ROBPAIERO_TUASESORDECONFIANZA.PNG";
-      doc.addImage(logoUrl, 'PNG', pageWidth - margin - 30, 15, 30, 15);
-
-      // --- Fondo (comentado por defecto) ---
-      // const fondoUrl = "URL_DE_TU_FONDO";
-      // doc.addImage(fondoUrl, 'JPEG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
-
-      // --- Encabezado ---
-      doc.setFontSize(22);
-      doc.setTextColor(43, 103, 119);
-      doc.setFont('helvetica', 'bold');
-      doc.text("Reporte de Inversión", pageWidth / 2, 25, { align: 'center' });
-
-      // --- Línea decorativa ---
-      doc.setDrawColor(43, 103, 119);
-      doc.setLineWidth(0.5);
-      doc.line(margin, 30, pageWidth - margin, 30);
-
-      // --- Datos de la inversión ---
-      doc.setFontSize(12);
-      doc.setTextColor(0, 0, 0);
-      doc.setFont('helvetica', 'normal');
-
-      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
-      const tasa = parseFloat(document.getElementById('tasa').value) || 0;
-      const plazo = parseInt(document.getElementById('plazo').value) || 0;
-      const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
-      const fechaInicio = document.getElementById('fechaInicio').value;
-
-      // Sección con fondo
-      doc.setFillColor(240, 240, 240);
-      doc.rect(margin, 35, pageWidth - 2 * margin, 25, 'F');
-      doc.text("Datos de la inversión", margin + 5, 42);
-      
-      // Texto organizado en columnas
-      doc.text(`• Capital inicial: ${formatCurrency(capitalInicial)}`, margin + 5, 50);
-      doc.text(`• Tasa anual: ${tasa}%`, margin + 5, 56);
-      doc.text(`• Plazo: ${plazo} meses`, pageWidth / 2 + 10, 50);
-      doc.text(`• Aportación: ${formatCurrency(aportacion)}`, pageWidth / 2 + 10, 56);
-      doc.text(`• Fecha inicio: ${fechaInicio || 'No especificada'}`, margin + 5, 62);
-
-      // --- Gráfico ---
-      if (chart) chart.update();
-      setTimeout(() => {
-        const canvas = document.getElementById('grafica');
-        const graficaImg = canvas.toDataURL('image/png', 1.0);
-        doc.addImage(graficaImg, 'PNG', margin, 70, pageWidth - 2 * margin, 80);
-
-        // --- Resultados finales ---
-        doc.setFillColor(230, 245, 230);
-        doc.rect(margin, 155, pageWidth - 2 * margin, 15, 'F');
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(0, 100, 0);
-        doc.text("Resultados finales", margin + 5, 165);
-        
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor(0, 0, 0);
-        doc.text(`Total aportado: ${formatCurrency(totalAportaciones)}`, margin + 5, 175);
-        doc.text(`Interés generado: ${formatCurrency(totalInteres)}`, pageWidth / 2, 175);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`Total acumulado: ${formatCurrency(capital)}`, margin + 5, 185);
-
-        // --- Tabla ---
-        doc.setFontSize(10);
-        doc.setTextColor(0, 0, 0);
-        doc.text("Detalle mes a mes", margin + 5, 195);
-
-        doc.autoTable({
-          html: '#tablaResultados',
-          startY: 200,
-          margin: { left: margin, right: margin },
-          headStyles: {
-            fillColor: [43, 103, 119],
-            textColor: 255,
-            fontSize: 9,
-            halign: 'center'
-          },
-          bodyStyles: {
-            fontSize: 8,
-            cellPadding: 2
-          },
-          columnStyles: {
-            0: { cellWidth: 12, halign: 'center' }, // Mes
-            1: { cellWidth: 25, halign: 'center' },  // Fecha
-            4: { fontStyle: 'bold', halign: 'right' } // Total
-          },
-          styles: {
-            overflow: 'linebreak',
-            valign: 'middle'
-          }
-        });
-
-        // --- Pie de página ---
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text("© " + new Date().getFullYear() + " Robpairé - Asesoría Financiera | contacto@robpaire.com", 
-                pageWidth / 2, pageHeight - 10, { align: 'center' });
-
-        // --- Marca de agua ---
-        doc.setFontSize(40);
-        doc.setTextColor(230, 230, 230);
-        doc.setGState(new doc.GState({ opacity: 0.1 }));
-        doc.text("Robpairé", 60, 150, { angle: 45 });
-
-        doc.save('reporte_inversion_robpaire.pdf');
-      }, 300);
-    }
-
-    // Descargar CSV
     function descargarCSV() {
       if (datosGrafica.length === 0) {
         alert("Primero calcula una inversión.");
@@ -616,17 +537,12 @@
         csv += `"${cells[0].textContent}","${cells[1].textContent}","${cells[2].textContent.replace('$','')}","${cells[3].textContent.replace('$','')}","${cells[4].textContent.replace('$','')}"\n`;
       });
       
-      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'inversion_robpaire.csv';
+      link.download = 'inversion.csv';
       link.click();
     }
-
-    // Inicialización
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('fechaInicio').valueAsDate = new Date();
-    });
   </script>
 </body>
 </html>

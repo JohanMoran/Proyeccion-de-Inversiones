@@ -206,6 +206,11 @@
       color: #e0e0e0;
       border: 1px solid #555;
     }
+    /* NUEVO ESTILO AGREGADO */
+    .highlight {
+      color: var(--verde);
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -386,11 +391,27 @@
         case 12: periodicidadTexto = 'anual'; break;
       }
 
+      // --- NUEVO CÓDIGO AGREGADO ---
+      // 1. Cálculo de la Tasa Efectiva Generada
+      const inversionTotal = capitalInicial + totalAportaciones;
+      const gananciaNeta = capital - inversionTotal;
+      const tasaEfectiva = (gananciaNeta / inversionTotal) * 100;
+
+      // 2. Cálculo del Porcentaje de Utilidad Anualizado (CAGR)
+      let utilidadAnualizada = 0;
+      if (meses > 12) {
+          const años = meses / 12;
+          utilidadAnualizada = (Math.pow(capital / inversionTotal, 1/años) - 1) * 100;
+      }
+      // --- FIN DEL NUEVO CÓDIGO ---
+
       document.getElementById('resultado').innerHTML = `
         <strong>Resumen de Inversión:</strong><br>
         Capital inicial: ${formatCurrency(capitalInicial)}<br>
-        Tasa de interés anual: ${tasa}%<br>
-        Plazo: ${meses} meses<br>
+        Tasa nominal anual: ${tasa}%<br>
+        ${meses > 12 ? `<span class="highlight">Tasa efectiva generada: ${tasaEfectiva.toFixed(2)}%</span><br>` : ''}
+        ${meses > 12 ? `<span class="highlight">Rendimiento anualizado: ${utilidadAnualizada.toFixed(2)}%</span><br>` : ''}
+        Plazo: ${meses} meses (${(meses/12).toFixed(1)} años)<br>
         Aportación ${periodicidadTexto}: ${formatCurrency(aportacion)}<br>
         Total aportado: ${formatCurrency(totalAportaciones)}<br>
         Total interés generado: ${formatCurrency(totalInteres)}<br>

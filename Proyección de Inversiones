@@ -22,8 +22,13 @@
     body.dark {
       --fondo-claro: #121212;
       --texto-claro: #e0e0e0;
+      --primario: #3a8da8;
+      --hover: #2b6777;
       --tabla-head: #1f1f1f;
       --boton-texto: #fff;
+      --portada: #1a2035;
+      --verde: #28a745;
+      --verde-hover: #218838;
     }
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -138,7 +143,7 @@
       color: #e0e0e0;
     }
     body.dark #tablaResultados th {
-      background-color: #2c2c2c;
+      background-color: var(--primario);
     }
     body.dark #tablaResultados td {
       border-color: #444;
@@ -191,7 +196,7 @@
       display: none;
     }
     body.dark .tabla-titulo {
-      background-color: #2c2c2c;
+      background-color: var(--primario);
     }
     select {
       padding: 10px;
@@ -206,7 +211,6 @@
       color: #e0e0e0;
       border: 1px solid #555;
     }
-    /* NUEVOS ESTILOS AGREGADOS (sin modificar los originales) */
     .highlight {
       color: var(--verde);
       font-weight: bold;
@@ -220,7 +224,6 @@
       color: var(--primario);
       font-weight: normal;
     }
-    /* ESTILOS PARA MÓVIL */
     @media only screen and (max-width: 768px) {
       body {
         padding: 15px;
@@ -381,12 +384,23 @@
     let datosGrafica = [];
     let totalAportaciones = 0, totalInteres = 0, capital = 0;
     let chart = null;
+    let darkMode = false;
 
     function toggleDarkMode() {
+      darkMode = !darkMode;
       document.body.classList.toggle("dark");
+      localStorage.setItem('darkMode', darkMode);
+      
       if (chart) {
+        chart.options.scales.y.grid.color = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+        chart.options.scales.x.grid.color = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
         chart.update();
       }
+    }
+
+    // Verificar preferencia de modo oscuro al cargar
+    if (localStorage.getItem('darkMode') === 'true') {
+      toggleDarkMode();
     }
 
     function calcular() {
@@ -396,10 +410,16 @@
       const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
       const periodicidad = parseInt(document.getElementById('periodicidad').value) || 1;
       const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
-      const fechaInicio = new Date(document.getElementById('fechaInicio').value);
+      const fechaInput = document.getElementById('fechaInicio').value;
+      const fechaInicio = fechaInput ? new Date(fechaInput) : new Date();
 
       if (plazo <= 0 || tasa <= 0) {
         alert("Por favor, ingresa un plazo y una tasa válidos.");
+        return;
+      }
+
+      if (plazo > 600) {
+        alert("El plazo máximo es de 600 meses (50 años)");
         return;
       }
 
@@ -536,6 +556,8 @@
         chart.destroy();
       }
 
+      const gridColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
       chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -543,8 +565,8 @@
           datasets: [{
             label: 'Total acumulado (MXN)',
             data: datosGrafica.map(d => d.total),
-            borderColor: '#2b6777',
-            backgroundColor: 'rgba(43, 103, 119, 0.1)',
+            borderColor: darkMode ? '#3a8da8' : '#2b6777',
+            backgroundColor: darkMode ? 'rgba(58, 141, 168, 0.1)' : 'rgba(43, 103, 119, 0.1)',
             fill: true,
             tension: 0.3
           }]
@@ -554,6 +576,9 @@
           plugins: {
             legend: {
               position: 'top',
+              labels: {
+                color: darkMode ? '#e0e0e0' : '#333'
+              }
             },
             tooltip: {
               callbacks: {
@@ -567,7 +592,19 @@
             y: {
               beginAtZero: false,
               ticks: {
+                color: darkMode ? '#e0e0e0' : '#333',
                 callback: (value) => formatCurrency(value)
+              },
+              grid: {
+                color: gridColor
+              }
+            },
+            x: {
+              ticks: {
+                color: darkMode ? '#e0e0e0' : '#333'
+              },
+              grid: {
+                color: gridColor
               }
             }
           }

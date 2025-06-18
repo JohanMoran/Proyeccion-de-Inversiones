@@ -22,13 +22,8 @@
     body.dark {
       --fondo-claro: #121212;
       --texto-claro: #e0e0e0;
-      --primario: #3a8da8;
-      --hover: #2b6777;
       --tabla-head: #1f1f1f;
       --boton-texto: #fff;
-      --portada: #1a2035;
-      --verde: #28a745;
-      --verde-hover: #218838;
     }
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -143,7 +138,7 @@
       color: #e0e0e0;
     }
     body.dark #tablaResultados th {
-      background-color: var(--primario);
+      background-color: #2c2c2c;
     }
     body.dark #tablaResultados td {
       border-color: #444;
@@ -196,7 +191,7 @@
       display: none;
     }
     body.dark .tabla-titulo {
-      background-color: var(--primario);
+      background-color: #2c2c2c;
     }
     select {
       padding: 10px;
@@ -211,85 +206,24 @@
       color: #e0e0e0;
       border: 1px solid #555;
     }
-    .highlight {
-      color: var(--verde);
-      font-weight: bold;
-    }
-    .resumen-titulo {
-      font-size: 18px;
-      margin-bottom: 10px;
-      display: block;
-    }
-    .resumen-datos {
-      color: var(--primario);
-      font-weight: normal;
-    }
-    @media only screen and (max-width: 768px) {
-      body {
-        padding: 15px;
-        font-size: 14px;
-      }
-      #portada {
-        padding: 15px;
-        min-height: 120px;
-      }
+
+    /* Ajustes específicos para móvil */
+    @media (max-width: 768px) {
       .input-container {
         flex-direction: column;
-        align-items: flex-start;
         gap: 5px;
       }
-      .input-container input,
+      .input-container input, 
       .input-container select {
         width: 100% !important;
+        font-size: 16px;
       }
       .input-container span {
         padding-left: 0;
-        font-size: 13px;
-        margin-bottom: 10px;
-      }
-      .buttons {
-        flex-direction: column;
-      }
-      .buttons button {
-        width: 100%;
-        margin-bottom: 8px;
-      }
-      .dark-mode-btn {
-        bottom: 10px;
-        right: 10px;
-        padding: 8px 12px;
-      }
-      #tablaResultados th, 
-      #tablaResultados td {
-        padding: 8px 5px;
-        font-size: 12px;
-      }
-      .result {
         font-size: 14px;
       }
-      .resumen-titulo {
-        font-size: 16px;
-      }
-      canvas {
-        height: 250px !important;
-      }
-    }
-    @media only screen and (max-width: 480px) {
-      body {
-        padding: 10px;
-      }
       #portada {
-        padding: 10px;
         min-height: 100px;
-      }
-      label {
-        font-size: 15px;
-      }
-      .input-container span {
-        font-size: 12px;
-      }
-      #tablaResultados {
-        font-size: 11px;
       }
     }
   </style>
@@ -304,25 +238,25 @@
 
   <label>MONTO INICIAL:</label>
   <div class="input-container">
-    <input type="number" id="capitalInicial" />
+    <input type="text" id="capitalInicial" />
     <span>¿Con qué cantidad cuentas en este momento? ¿Con cuánto empezarás tu inversión?</span>
   </div>
 
   <label>Tasa Anual (%):</label>
   <div class="input-container">
-    <input type="number" id="tasa" step="0.01" />
+    <input type="text" id="tasa" />
     <span>Tasa de Interés anual, inversionistas conservadores (renta fija) 10% - 15%.</span>
   </div>
 
   <label>Plazo (en meses):</label>
   <div class="input-container">
-    <input type="number" id="plazo" min="1" />
+    <input type="text" id="plazo" />
     <span>¿Cuántos años vas a realizar la inversión? ¿Cuál es tu horizonte de inversión?</span>
   </div>
 
   <label>Aportación:</label>
   <div class="input-container">
-    <input type="number" id="aportacion" />
+    <input type="text" id="aportacion" />
     <span>¿Cuánto puedes destinar a tu inversión periódicamente para incrementar tus rendimientos?</span>
   </div>
 
@@ -346,7 +280,7 @@
 
   <label>Capital objetivo (opcional):</label>
   <div class="input-container">
-    <input type="number" id="capitalObjetivo" placeholder="Ej: 500000" />
+    <input type="text" id="capitalObjetivo" placeholder="Ej: 500000" />
     <span>¿Ya tienes un objetivo (ir de viaje, comprar un auto, etc.)? Elige un monto con el que alcanzarás ese objetivo</span>
   </div>
 
@@ -384,42 +318,58 @@
     let datosGrafica = [];
     let totalAportaciones = 0, totalInteres = 0, capital = 0;
     let chart = null;
-    let darkMode = false;
+
+    // Función para aplicar formato a los inputs
+    function aplicarFormatoInputs() {
+      const capitalInput = document.getElementById('capitalInicial');
+      const tasaInput = document.getElementById('tasa');
+      const plazoInput = document.getElementById('plazo');
+      const aportacionInput = document.getElementById('aportacion');
+      const capitalObjetivoInput = document.getElementById('capitalObjetivo');
+
+      // Formato de moneda (pesos mexicanos)
+      [capitalInput, aportacionInput, capitalObjetivoInput].forEach(input => {
+        input.addEventListener('input', function(e) {
+          let value = e.target.value.replace(/[^0-9.]/g, '');
+          if (value) {
+            e.target.value = formatCurrency(parseFloat(value));
+          }
+        });
+      });
+
+      // Formato de porcentaje (%)
+      tasaInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/[^0-9.]/g, '');
+        if (value) {
+          e.target.value = value + '%';
+        }
+      });
+
+      // Formato numérico simple (plazo)
+      plazoInput.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+      });
+    }
 
     function toggleDarkMode() {
-      darkMode = !darkMode;
       document.body.classList.toggle("dark");
-      localStorage.setItem('darkMode', darkMode);
-      
       if (chart) {
-        chart.options.scales.y.grid.color = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-        chart.options.scales.x.grid.color = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
         chart.update();
       }
     }
 
-    // Verificar preferencia de modo oscuro al cargar
-    if (localStorage.getItem('darkMode') === 'true') {
-      toggleDarkMode();
-    }
-
     function calcular() {
-      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
-      const tasa = parseFloat(document.getElementById('tasa').value) || 0;
-      const plazo = parseInt(document.getElementById('plazo').value) || 0;
-      const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
+      // Limpiar formatos antes de calcular
+      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value.replace(/[^0-9.]/g, '')) || 0;
+      const tasa = parseFloat(document.getElementById('tasa').value.replace(/[^0-9.]/g, '')) || 0;
+      const plazo = parseInt(document.getElementById('plazo').value.replace(/[^0-9]/g, '')) || 0;
+      const aportacion = parseFloat(document.getElementById('aportacion').value.replace(/[^0-9.]/g, '')) || 0;
       const periodicidad = parseInt(document.getElementById('periodicidad').value) || 1;
-      const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
-      const fechaInput = document.getElementById('fechaInicio').value;
-      const fechaInicio = fechaInput ? new Date(fechaInput) : new Date();
+      const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value.replace(/[^0-9.]/g, '')) || null;
+      const fechaInicio = new Date(document.getElementById('fechaInicio').value);
 
       if (plazo <= 0 || tasa <= 0) {
         alert("Por favor, ingresa un plazo y una tasa válidos.");
-        return;
-      }
-
-      if (plazo > 600) {
-        alert("El plazo máximo es de 600 meses (50 años)");
         return;
       }
 
@@ -487,30 +437,15 @@
         case 12: periodicidadTexto = 'anual'; break;
       }
 
-      // Cálculo de la Tasa Efectiva Generada
-      const inversionTotal = capitalInicial + totalAportaciones;
-      const gananciaNeta = capital - inversionTotal;
-      const tasaEfectiva = (gananciaNeta / inversionTotal) * 100;
-
-      // Cálculo del Porcentaje de Utilidad Anualizado (CAGR)
-      let utilidadAnualizada = 0;
-      if (meses > 12) {
-          const años = meses / 12;
-          utilidadAnualizada = (Math.pow(capital / inversionTotal, 1/años) - 1;
-          utilidadAnualizada = (utilidadAnualizada * 100).toFixed(2);
-      }
-
       document.getElementById('resultado').innerHTML = `
-        <span class="resumen-titulo"><strong>RESUMEN DE INVERSIÓN</strong></span>
-        <span class="resumen-datos">Capital inicial: ${formatCurrency(capitalInicial)}</span><br>
-        <span class="resumen-datos">Tasa nominal anual: ${tasa}%</span><br>
-        ${meses > 12 ? `<span class="resumen-datos highlight">Tasa efectiva generada: ${tasaEfectiva.toFixed(2)}%</span><br>` : ''}
-        ${meses > 12 ? `<span class="resumen-datos highlight">Rendimiento anualizado: ${utilidadAnualizada}%</span><br>` : ''}
-        <span class="resumen-datos">Plazo: ${meses} meses (${(meses/12).toFixed(1)} años)</span><br>
-        <span class="resumen-datos">Aportación ${periodicidadTexto}: ${formatCurrency(aportacion)}</span><br>
-        <span class="resumen-datos">Total aportado: ${formatCurrency(totalAportaciones)}</span><br>
-        <span class="resumen-datos">Total interés generado: ${formatCurrency(totalInteres)}</span><br>
-        <span class="resumen-datos"><strong>Total al final del plazo: ${formatCurrency(capital)}</strong></span>
+        <strong>Resumen de Inversión:</strong><br>
+        Capital inicial: ${formatCurrency(capitalInicial)}<br>
+        Tasa de interés anual: ${tasa}%<br>
+        Plazo: ${meses} meses<br>
+        Aportación ${periodicidadTexto}: ${formatCurrency(aportacion)}<br>
+        Total aportado: ${formatCurrency(totalAportaciones)}<br>
+        Total interés generado: ${formatCurrency(totalInteres)}<br>
+        <strong>Total al final del plazo: ${formatCurrency(capital)}</strong>
       `;
 
       if (cumpleObjetivo) {
@@ -556,8 +491,6 @@
         chart.destroy();
       }
 
-      const gridColor = darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
-
       chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -565,8 +498,8 @@
           datasets: [{
             label: 'Total acumulado (MXN)',
             data: datosGrafica.map(d => d.total),
-            borderColor: darkMode ? '#3a8da8' : '#2b6777',
-            backgroundColor: darkMode ? 'rgba(58, 141, 168, 0.1)' : 'rgba(43, 103, 119, 0.1)',
+            borderColor: '#2b6777',
+            backgroundColor: 'rgba(43, 103, 119, 0.1)',
             fill: true,
             tension: 0.3
           }]
@@ -576,9 +509,6 @@
           plugins: {
             legend: {
               position: 'top',
-              labels: {
-                color: darkMode ? '#e0e0e0' : '#333'
-              }
             },
             tooltip: {
               callbacks: {
@@ -592,19 +522,7 @@
             y: {
               beginAtZero: false,
               ticks: {
-                color: darkMode ? '#e0e0e0' : '#333',
                 callback: (value) => formatCurrency(value)
-              },
-              grid: {
-                color: gridColor
-              }
-            },
-            x: {
-              ticks: {
-                color: darkMode ? '#e0e0e0' : '#333'
-              },
-              grid: {
-                color: gridColor
               }
             }
           }
@@ -640,10 +558,10 @@
       doc.rect(20, 25, 170, 30, 'F');
       doc.text("Datos de la inversión", 25, 30);
       
-      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
-      const tasa = parseFloat(document.getElementById('tasa').value) || 0;
-      const plazo = parseInt(document.getElementById('plazo').value) || 0;
-      const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
+      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value.replace(/[^0-9.]/g, '')) || 0;
+      const tasa = parseFloat(document.getElementById('tasa').value.replace(/[^0-9.]/g, '')) || 0;
+      const plazo = parseInt(document.getElementById('plazo').value.replace(/[^0-9]/g, '')) || 0;
+      const aportacion = parseFloat(document.getElementById('aportacion').value.replace(/[^0-9.]/g, '')) || 0;
       const periodicidad = parseInt(document.getElementById('periodicidad').value) || 1;
       
       let periodicidadTexto = '';
@@ -667,10 +585,6 @@
       doc.setFont('helvetica', 'bold');
       doc.text(`Total acumulado: ${formatCurrency(capital)}`, 25, 79);
       doc.setFont('helvetica', 'normal');
-
-      if (chart) {
-        chart.update();
-      }
 
       setTimeout(() => {
         const canvas = document.getElementById('grafica');
@@ -727,6 +641,11 @@
       link.download = 'inversion.csv';
       link.click();
     }
+
+    // Inicializar formatos al cargar la página
+    window.addEventListener('DOMContentLoaded', function() {
+      aplicarFormatoInputs();
+    });
   </script>
 </body>
 </html>

@@ -206,10 +206,88 @@
       color: #e0e0e0;
       border: 1px solid #555;
     }
-    /* NUEVO ESTILO AGREGADO */
+    /* NUEVOS ESTILOS AGREGADOS (sin modificar los originales) */
     .highlight {
       color: var(--verde);
       font-weight: bold;
+    }
+    .resumen-titulo {
+      font-size: 18px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    .resumen-datos {
+      color: var(--primario);
+      font-weight: normal;
+    }
+    /* ESTILOS PARA MÓVIL */
+    @media only screen and (max-width: 768px) {
+      body {
+        padding: 15px;
+        font-size: 14px;
+      }
+      #portada {
+        padding: 15px;
+        min-height: 120px;
+      }
+      .input-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+      }
+      .input-container input,
+      .input-container select {
+        width: 100% !important;
+      }
+      .input-container span {
+        padding-left: 0;
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+      .buttons {
+        flex-direction: column;
+      }
+      .buttons button {
+        width: 100%;
+        margin-bottom: 8px;
+      }
+      .dark-mode-btn {
+        bottom: 10px;
+        right: 10px;
+        padding: 8px 12px;
+      }
+      #tablaResultados th, 
+      #tablaResultados td {
+        padding: 8px 5px;
+        font-size: 12px;
+      }
+      .result {
+        font-size: 14px;
+      }
+      .resumen-titulo {
+        font-size: 16px;
+      }
+      canvas {
+        height: 250px !important;
+      }
+    }
+    @media only screen and (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      #portada {
+        padding: 10px;
+        min-height: 100px;
+      }
+      label {
+        font-size: 15px;
+      }
+      .input-container span {
+        font-size: 12px;
+      }
+      #tablaResultados {
+        font-size: 11px;
+      }
     }
   </style>
 </head>
@@ -358,7 +436,6 @@
         totalInteres += interes;
         capital += interes;
         
-        // Determinar si este mes corresponde a una aportación
         const esAportacion = (i - 1) % periodicidad === 0;
         if (esAportacion) {
           capital += aportacion;
@@ -368,7 +445,6 @@
         const fecha = new Date(fechaInicio);
         fecha.setMonth(fecha.getMonth() + i);
 
-        // Mostrar todas las filas con $0.00 en aportación cuando no corresponde
         tabla.innerHTML += `
           <tr>
             <td>${i}</td>
@@ -391,31 +467,30 @@
         case 12: periodicidadTexto = 'anual'; break;
       }
 
-      // --- NUEVO CÓDIGO AGREGADO ---
-      // 1. Cálculo de la Tasa Efectiva Generada
+      // Cálculo de la Tasa Efectiva Generada
       const inversionTotal = capitalInicial + totalAportaciones;
       const gananciaNeta = capital - inversionTotal;
       const tasaEfectiva = (gananciaNeta / inversionTotal) * 100;
 
-      // 2. Cálculo del Porcentaje de Utilidad Anualizado (CAGR)
+      // Cálculo del Porcentaje de Utilidad Anualizado (CAGR)
       let utilidadAnualizada = 0;
       if (meses > 12) {
           const años = meses / 12;
-          utilidadAnualizada = (Math.pow(capital / inversionTotal, 1/años) - 1) * 100;
+          utilidadAnualizada = (Math.pow(capital / inversionTotal, 1/años) - 1;
+          utilidadAnualizada = (utilidadAnualizada * 100).toFixed(2);
       }
-      // --- FIN DEL NUEVO CÓDIGO ---
 
       document.getElementById('resultado').innerHTML = `
-        <strong>Resumen de Inversión:</strong><br>
-        Capital inicial: ${formatCurrency(capitalInicial)}<br>
-        Tasa nominal anual: ${tasa}%<br>
-        ${meses > 12 ? `<span class="highlight">Tasa efectiva generada: ${tasaEfectiva.toFixed(2)}%</span><br>` : ''}
-        ${meses > 12 ? `<span class="highlight">Rendimiento anualizado: ${utilidadAnualizada.toFixed(2)}%</span><br>` : ''}
-        Plazo: ${meses} meses (${(meses/12).toFixed(1)} años)<br>
-        Aportación ${periodicidadTexto}: ${formatCurrency(aportacion)}<br>
-        Total aportado: ${formatCurrency(totalAportaciones)}<br>
-        Total interés generado: ${formatCurrency(totalInteres)}<br>
-        <strong>Total al final del plazo: ${formatCurrency(capital)}</strong>
+        <span class="resumen-titulo"><strong>RESUMEN DE INVERSIÓN</strong></span>
+        <span class="resumen-datos">Capital inicial: ${formatCurrency(capitalInicial)}</span><br>
+        <span class="resumen-datos">Tasa nominal anual: ${tasa}%</span><br>
+        ${meses > 12 ? `<span class="resumen-datos highlight">Tasa efectiva generada: ${tasaEfectiva.toFixed(2)}%</span><br>` : ''}
+        ${meses > 12 ? `<span class="resumen-datos highlight">Rendimiento anualizado: ${utilidadAnualizada}%</span><br>` : ''}
+        <span class="resumen-datos">Plazo: ${meses} meses (${(meses/12).toFixed(1)} años)</span><br>
+        <span class="resumen-datos">Aportación ${periodicidadTexto}: ${formatCurrency(aportacion)}</span><br>
+        <span class="resumen-datos">Total aportado: ${formatCurrency(totalAportaciones)}</span><br>
+        <span class="resumen-datos">Total interés generado: ${formatCurrency(totalInteres)}</span><br>
+        <span class="resumen-datos"><strong>Total al final del plazo: ${formatCurrency(capital)}</strong></span>
       `;
 
       if (cumpleObjetivo) {
@@ -513,7 +588,6 @@
         format: 'a4'
       });
       
-      // --- Título y encabezado ---
       doc.setFontSize(20);
       doc.setTextColor(43, 103, 119);
       doc.setFont('helvetica', 'bold');
@@ -522,7 +596,6 @@
       doc.setLineWidth(0.5);
       doc.line(20, 20, 190, 20);
       
-      // --- Datos de la inversión ---
       doc.setFontSize(12);
       doc.setTextColor(0, 0, 0);
       doc.setFont('helvetica', 'normal');
@@ -549,7 +622,6 @@
       doc.text(`Tasa anual: ${tasa}% | Plazo: ${plazo} meses`, 25, 44);
       doc.text(`Aportación ${periodicidadTexto}: ${formatCurrency(aportacion)}`, 25, 51);
       
-      // --- Resultados finales ---
       doc.setFillColor(230, 245, 230);
       doc.rect(20, 60, 170, 20, 'F');
       doc.text("Resultados finales", 25, 65);
@@ -559,21 +631,18 @@
       doc.text(`Total acumulado: ${formatCurrency(capital)}`, 25, 79);
       doc.setFont('helvetica', 'normal');
 
-      // --- Gráfico (antes que la tabla) ---
-      // Asegurar que el gráfico esté actualizado
       if (chart) {
         chart.update();
       }
 
       setTimeout(() => {
         const canvas = document.getElementById('grafica');
-        const imgData = canvas.toDataURL('image/png', 1.0); // Calidad al 100%
-        doc.addImage(imgData, 'PNG', 20, 85, 170, 80); // Posición después de los resultados (85 en Y)
+        const imgData = canvas.toDataURL('image/png', 1.0);
+        doc.addImage(imgData, 'PNG', 20, 85, 170, 80);
 
-        // --- Tabla (después del gráfico) ---
         doc.autoTable({
           html: '#tablaResultados',
-          startY: 170, // Ajustado para que esté después del gráfico
+          startY: 170,
           theme: 'grid',
           headStyles: {
             fillColor: [43, 103, 119],
@@ -592,13 +661,12 @@
           }
         });
 
-        // Pie de página
         doc.setFontSize(10);
         doc.setTextColor(100);
         doc.text("© Calculadora de Inversión - " + new Date().toLocaleDateString(), 105, 285, { align: 'center' });
         
         doc.save('reporte_inversion.pdf');
-      }, 300); // Retraso para renderizar el gráfico
+      }, 300);
     }
 
     function descargarCSV() {

@@ -238,25 +238,25 @@
 
   <label>MONTO INICIAL:</label>
   <div class="input-container">
-    <input type="text" id="capitalInicial" />
+    <input type="number" id="capitalInicial" />
     <span>¿Con qué cantidad cuentas en este momento? ¿Con cuánto empezarás tu inversión?</span>
   </div>
 
   <label>Tasa Anual (%):</label>
   <div class="input-container">
-    <input type="text" id="tasa" />
+    <input type="number" id="tasa" step="0.01" />
     <span>Tasa de Interés anual, inversionistas conservadores (renta fija) 10% - 15%.</span>
   </div>
 
   <label>Plazo (en meses):</label>
   <div class="input-container">
-    <input type="text" id="plazo" />
+    <input type="number" id="plazo" min="1" />
     <span>¿Cuántos años vas a realizar la inversión? ¿Cuál es tu horizonte de inversión?</span>
   </div>
 
   <label>Aportación:</label>
   <div class="input-container">
-    <input type="text" id="aportacion" />
+    <input type="number" id="aportacion" />
     <span>¿Cuánto puedes destinar a tu inversión periódicamente para incrementar tus rendimientos?</span>
   </div>
 
@@ -280,7 +280,7 @@
 
   <label>Capital objetivo (opcional):</label>
   <div class="input-container">
-    <input type="text" id="capitalObjetivo" placeholder="Ej: 500000" />
+    <input type="number" id="capitalObjetivo" placeholder="Ej: 500000" />
     <span>¿Ya tienes un objetivo (ir de viaje, comprar un auto, etc.)? Elige un monto con el que alcanzarás ese objetivo</span>
   </div>
 
@@ -319,38 +319,6 @@
     let totalAportaciones = 0, totalInteres = 0, capital = 0;
     let chart = null;
 
-    // Función para aplicar formato a los inputs
-    function aplicarFormatoInputs() {
-      const capitalInput = document.getElementById('capitalInicial');
-      const tasaInput = document.getElementById('tasa');
-      const plazoInput = document.getElementById('plazo');
-      const aportacionInput = document.getElementById('aportacion');
-      const capitalObjetivoInput = document.getElementById('capitalObjetivo');
-
-      // Formato de moneda (pesos mexicanos)
-      [capitalInput, aportacionInput, capitalObjetivoInput].forEach(input => {
-        input.addEventListener('input', function(e) {
-          let value = e.target.value.replace(/[^0-9.]/g, '');
-          if (value) {
-            e.target.value = formatCurrency(parseFloat(value));
-          }
-        });
-      });
-
-      // Formato de porcentaje (%)
-      tasaInput.addEventListener('input', function(e) {
-        let value = e.target.value.replace(/[^0-9.]/g, '');
-        if (value) {
-          e.target.value = value + '%';
-        }
-      });
-
-      // Formato numérico simple (plazo)
-      plazoInput.addEventListener('input', function(e) {
-        e.target.value = e.target.value.replace(/[^0-9]/g, '');
-      });
-    }
-
     function toggleDarkMode() {
       document.body.classList.toggle("dark");
       if (chart) {
@@ -359,13 +327,12 @@
     }
 
     function calcular() {
-      // Limpiar formatos antes de calcular
-      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value.replace(/[^0-9.]/g, '')) || 0;
-      const tasa = parseFloat(document.getElementById('tasa').value.replace(/[^0-9.]/g, '')) || 0;
-      const plazo = parseInt(document.getElementById('plazo').value.replace(/[^0-9]/g, '')) || 0;
-      const aportacion = parseFloat(document.getElementById('aportacion').value.replace(/[^0-9.]/g, '')) || 0;
+      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
+      const tasa = parseFloat(document.getElementById('tasa').value) || 0;
+      const plazo = parseInt(document.getElementById('plazo').value) || 0;
+      const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
       const periodicidad = parseInt(document.getElementById('periodicidad').value) || 1;
-      const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value.replace(/[^0-9.]/g, '')) || null;
+      const capitalObjetivo = parseFloat(document.getElementById('capitalObjetivo').value) || null;
       const fechaInicio = new Date(document.getElementById('fechaInicio').value);
 
       if (plazo <= 0 || tasa <= 0) {
@@ -558,10 +525,10 @@
       doc.rect(20, 25, 170, 30, 'F');
       doc.text("Datos de la inversión", 25, 30);
       
-      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value.replace(/[^0-9.]/g, '')) || 0;
-      const tasa = parseFloat(document.getElementById('tasa').value.replace(/[^0-9.]/g, '')) || 0;
-      const plazo = parseInt(document.getElementById('plazo').value.replace(/[^0-9]/g, '')) || 0;
-      const aportacion = parseFloat(document.getElementById('aportacion').value.replace(/[^0-9.]/g, '')) || 0;
+      const capitalInicial = parseFloat(document.getElementById('capitalInicial').value) || 0;
+      const tasa = parseFloat(document.getElementById('tasa').value) || 0;
+      const plazo = parseInt(document.getElementById('plazo').value) || 0;
+      const aportacion = parseFloat(document.getElementById('aportacion').value) || 0;
       const periodicidad = parseInt(document.getElementById('periodicidad').value) || 1;
       
       let periodicidadTexto = '';
@@ -641,11 +608,6 @@
       link.download = 'inversion.csv';
       link.click();
     }
-
-    // Inicializar formatos al cargar la página
-    window.addEventListener('DOMContentLoaded', function() {
-      aplicarFormatoInputs();
-    });
   </script>
 </body>
 </html>
